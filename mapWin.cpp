@@ -168,7 +168,8 @@ void mapWin::paintGL(){
             }
          }*/
 
-         step = sim->drawGenPathsTrail(step);
+         //step = sim->drawGenPathsTrail(step);
+         sim->drawGenPaths();
 
          glDisable(GL_LINE_SMOOTH);
          glDisable(GL_BLEND);
@@ -325,8 +326,8 @@ void mapWin::update(){
              //}
              //else{
                //if(sim->adv->eyePointList.size() < 5){
-             //    hep = new hurEyePoints(sim->adv->pre);
-             //    sim->adv->eyePointList.push_back(hep);
+               //  hep = new hurEyePoints(sim->adv->pre);
+               //  sim->adv->eyePointList.push_back(hep);
                //}
              //}
            }

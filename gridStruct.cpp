@@ -76,14 +76,14 @@ gridStruct::gridStruct(int dLat, int dLon, int dpBin, int miLa, int maLa, int mi
       for(j = 0; j < degLon; j++){
          if( (minLat+i == 24 || minLat+i == 25) && 
              (-1*(minLon+j) == -84 || -1*(minLon+j) == -85)){
-            cout << "Grid Lat Lon: " << minLat+i << ", " << -1*(minLon+j) << "\n";
+            //cout << "Grid Lat Lon: " << minLat+i << ", " << -1*(minLon+j) << "\n";
          }
          for(k = 0; k < binSize; k++){
             if( (minLat+i == 24 || minLat+i == 25) && 
                 (-1*(minLon+j) == -84 || -1*(minLon+j) == -85)){
 
-              cout << "     bin: " << k << "\n";
-              printBS = true;
+              //cout << "     bin: " << k << "\n";
+              //printBS = true;
             }
             grid[i]->at(j)->at(k)->resolve();
          }

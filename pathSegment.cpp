@@ -17,19 +17,23 @@ int madeIt = 0;
 
 extern int debugPrint;
 
+extern double errorRadR[];
+
 pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<Vector4d*> * e1, std::vector<Vector4d*> * e2, double initBear, double initSpeed){
    double dist;
 
    double b1, b2, b3;
    double d1, d2, d3;
    int seg;
-   double totalSegments;
    Vector2d pos0, pos1;
    double sigma = 1.0;
 
    double bDif1, bDif2;
    double sDif1, sDif2;
    Vector2d v1, v2;
+   double errDist = 0.0;
+   double tempDist = 0.0;
+   double timeSeg = 1.0;
 
    //double h[3] = [9, 12, 24];
 
@@ -49,27 +53,36 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
 
    seg = (int)(hour/3);
 
-   totalSegments = -1;
-   if(seg < 3){
-      totalSegments = 3;
-      //seg = 0; 
+   switch((int)hour){
+     case 0:
+       errDist = errorRadR[1];
+       tempDist = dist*3;
+       timeSeg = 9;
+       break;
+     case 9:
+       errDist = errorRadR[2];
+       tempDist = dist*4;
+       timeSeg = 12;
+       break;
+     case 21:
+       errDist = errorRadR[3];
+       tempDist = dist*4;
+       timeSeg = 12;
+       break;
+     case 33:
+       errDist = errorRadR[4];
+       tempDist = dist*4;
+       timeSeg = 12;
+       break;
+     case 45:
+       errDist = errorRadR[5];
+       tempDist = dist*8;
+       timeSeg = 24;
+       break;
    }
-   else if(seg < 7){ 
-      totalSegments = 4; 
-      //seg = 1;
-   }
-   else if(seg < 11){
-      totalSegments = 4;
-      //seg = 2;
-   }
-   else if(seg < 15){
-      totalSegments = 4;
-      //seg = 3;
-   }
-   else{
-      totalSegments = 8;
-      //seg = 4;
-   }
+
+   cout << "Hour: " << hour << "     ErrorDist: " << errDist << endl << flush;
+
 
    //cout << "hour: " << hour << "   Seg: " << seg << endl;
    //cout << "Size of e1: " << e1->size() << " seg: " << seg << endl;
@@ -85,16 +98,9 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
    b3 = findBearing_2(&v1, &v2);
 
    d1 = dist/3.0;
-   //d2 = haversine(e1->at(seg).x, e1->at(seg+1).x, e1->at(seg).y, e1->at(seg+1).y)/(double)(totalSegments*3.0);
-   //d3 = haversine(e2->at(seg).x, e2->at(seg+1).x, e2->at(seg).y, e2->at(seg+1).y)/(double)(totalSegments*3.0);
    d2 = haversine(e1->at(seg)->x, e1->at(seg+1)->x, e1->at(seg)->y, e1->at(seg+1)->y)/3.0;
    d3 = haversine(e2->at(seg)->x, e2->at(seg+1)->x, e2->at(seg)->y, e2->at(seg+1)->y)/3.0;
     
-   //phB = 6.0 + 4.0*(pow((4140.0-time),4) / pow(4140.0,4));
-   //cout << "totalSegments: " << totalSegments << endl;
-   //cout << "    b1: " << b1 << "    b2: " << b2 <<  "    b3: " << b3 << endl;
-   //cout << "    d1: " << d1 << "    d2: " << d2 <<  "    d3: " << d3 << endl;
-   
    bDif1 = abs(findDif(b2, b1))*sigma;
    bDif2 = abs(findDif(b3, b1))*sigma;
 
@@ -112,9 +118,6 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
    //cout << "hour: " << hour << "   seg: " << seg << endl;
 
    if(seg == 0){
-      /*e1Pre = e2Pre = p0->z;
-      e1PreSpeed = p0->w;
-      e2PreSpeed = p0->w;*/
       e1Pre = e2Pre = initBear;
       e1PreSpeed = e2PreSpeed = initSpeed;
    }
@@ -139,15 +142,25 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
    phB1 = findDif(b2, e1Pre);
    phB2 = findDif(b3, e2Pre);
 
-   //phS = (sDif1 + sDif2)/2.0;  // Should change this to match the bearing
-
    phS1 = (d2-e1PreSpeed);
    phS2 = (d3-e2PreSpeed);
 
-   phS = (sDif1 + sDif2)/2.0;
+   if(errDist != 0){
+     phS1 = ((errDist-tempDist)/errDist)*sDif;
+     phS2 = ((errDist+tempDist)/errDist)*sDif;
+   }
+   else{
+      phS1 = 0;
+      phS2 = 0;
+   }
+
+   cout << "Hour: " << hour << endl << flush;
+   cout << "   dist: " << tempDist << "      errDist: " << errDist << endl << flush;
+   cout << "   phS1 : " << phS1 << "     phS2: " << phS2 << endl << flush;
+
 
    bRange = 1.5;
-   sRange = 3.0;
+   sRange = 0.5;
 
    if(phB1 < phB2){
       pminB = bDif - bRange*abs(bDif-phB1);
@@ -165,6 +178,8 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
       pminS = sDif - sRange*abs(sDif-phS2);
       pmaxS = sDif + sRange*abs(phS1-sDif);
    }
+
+   cout << "     sDif: " << sDif << "     pminS: " << pminS << "     pmaxS: " << pmaxS << endl << flush;
 
    //if(madeIt == 0 && time/60 == 24){
       //cout << "pminS: " << pminS << "     pmaxS: " << pmaxS << endl;

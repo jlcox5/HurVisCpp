@@ -1015,6 +1015,11 @@ void advisory::drawGenPathsRainDrop(){
           float newTempTrans = tempTrans - (distAdd/1.5);
           float newDropRadius = 3 + 7*(1.0 - newTempTrans);
           glColor4f(redVal, greenVal, blueVal, newTempTrans);
+
+          if(i == 3){
+            glColor4f(0.0, 0.0, 1.0, 1.0);
+          }
+
           x1 = y1 = 0.0;
   
           glLineWidth(2.0);

@@ -149,7 +149,7 @@ Vector4d nextPoint(Vector4d curPoint, double steps, unsigned int curAdv){
          if(ch1 < speedRatio){ speedHistPre = 1; }
 
          // For new vis... need to remove for old method
-         //speedHistPre = 0;
+         speedHistPre = 0;
          sd = dataGrid->grid[degLat]->at(degLon)->at(bin)->getProbSpeed3Hour(chosen2, min, 1, speedHistPre);
          //sd = dataGrid->grid[degLat]->at(degLon)->at(bin)->getProbSpeed3Hour(chosen2, min, 1, 0);
          fSpeed = sd; 
@@ -166,7 +166,7 @@ Vector4d nextPoint(Vector4d curPoint, double steps, unsigned int curAdv){
          if(ch2 < bearRatio){ bearHistPre = 1; }
 
          // For new vis... need to remove for old method
-         //bearHistPre = 0;
+         bearHistPre = 0;
 
          bd = dataGrid->grid[degLat]->at(degLon)->at(bin)->getProbBear3Hour(chosen, min, 1, bearHistPre);
 
