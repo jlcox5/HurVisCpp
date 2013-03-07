@@ -1,0 +1,4 @@
+set nokey
+set xrange[-0.242309:-0.0486388]
+set style line 1 lt 1 lw 3
+plot "timeVaryPDF.txt" title "title" with lines linestyle 1
