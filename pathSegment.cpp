@@ -20,20 +20,18 @@ extern int debugPrint;
 extern double errorRadR[];
 
 pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<Vector4d*> * e1, std::vector<Vector4d*> * e2, double initBear, double initSpeed){
-   double dist;
 
+   double dist;
    double b1, b2, b3;
    double d1, d2, d3;
    int seg;
    Vector2d pos0, pos1;
-   double sigma = 1.0;
 
-   double bDif1, bDif2;
-   double sDif1, sDif2;
    Vector2d v1, v2;
    double errDist = 0.0;
    double tempDist = 0.0;
    double timeSeg = 1.0;
+   double curSpeed = 0.0;
 
    //double h[3] = [9, 12, 24];
 
@@ -45,9 +43,11 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
    pmaxB = pminB = bDif;
    pmaxS = pminS = sDif;
    time = hour*60;
-   if(madeIt == 0){
+   if(hour == 0){
       cout << "p0: " << *p0 << "  p1: " << *p1 << "  bDif: " << bDif << " sDif: " << sDif << "  time: " << time << endl;
    }
+
+   curSpeed = haversine(p0->x, p1->x, p0->y, p1->y)/3.0;
 
    samples = 101;
 
@@ -101,14 +101,6 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
    d2 = haversine(e1->at(seg)->x, e1->at(seg+1)->x, e1->at(seg)->y, e1->at(seg+1)->y)/3.0;
    d3 = haversine(e2->at(seg)->x, e2->at(seg+1)->x, e2->at(seg)->y, e2->at(seg+1)->y)/3.0;
     
-   bDif1 = abs(findDif(b2, b1))*sigma;
-   bDif2 = abs(findDif(b3, b1))*sigma;
-
-   sDif1 = d2-d1;
-   sDif2 = d3-d1;
-
-   phB = (bDif1 + bDif2)/2.0;
-
    //  New method - find dif between error cone bearings from previous segment and current segment.
    //  Treat each side differently.
    double e1Pre, e2Pre;
@@ -146,12 +138,20 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
    phS2 = (d3-e2PreSpeed);
 
    if(errDist != 0){
-     phS1 = ((errDist-tempDist)/errDist)*sDif;
-     phS2 = ((errDist+tempDist)/errDist)*sDif;
+     phS1 = ((tempDist-errDist)/tempDist)*sDif;
+     phS1 = ((tempDist-errDist) - (curSpeed*timeSeg))/timeSeg;
+     cout << "tempDist: " << tempDist << "    errDist: " << errDist << flush;
+     cout << "     curSpeed: " << curSpeed << "    timeSeg: " << timeSeg << endl << flush;
+     cout << "     num: " << (tempDist-errDist) - (curSpeed*timeSeg) << endl << flush;
+     cout << "PHS1: " << phS1 << endl << flush;
+     //phS1 = ((errDist-tempDist)/errDist)*sDif;
+     phS2 = ((tempDist+errDist)/tempDist)*sDif;
+     phS2 = ((tempDist+errDist) - (curSpeed*timeSeg))/timeSeg;
+     //phS2 = ((tempDist+errDist)/errDist)*sDif;
    }
    else{
-      phS1 = 0;
-      phS2 = 0;
+     phS1 = 0;
+     phS2 = 0;
    }
 
    cout << "Hour: " << hour << endl << flush;
@@ -160,7 +160,7 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
 
 
    bRange = 1.5;
-   sRange = 0.5;
+   sRange = 1.0;
 
    if(phB1 < phB2){
       pminB = bDif - bRange*abs(bDif-phB1);
@@ -171,15 +171,29 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
       pmaxB = bDif + bRange*abs(phB1-bDif);
    }
    if(phS1 < phS2){
-      pminS = sDif - sRange*abs(sDif-phS1);
-      pmaxS = sDif + sRange*abs(phS2-sDif);
+      pminS = sDif - sRange*abs(phS1);
+      pmaxS = sDif + sRange*abs(phS2);
+      //pminS = phS1;
+      //pmaxS = phS2;
    }
    else{
-      pminS = sDif - sRange*abs(sDif-phS2);
-      pmaxS = sDif + sRange*abs(phS1-sDif);
+      pminS = sDif - sRange*abs(phS2);
+      pmaxS = sDif + sRange*abs(phS1);
+      //pminS = phS2;
+      //pmaxS = phS1;
    }
 
+   //sDif = pmaxS;
+   //pminS = pmaxS;
+
+   //sDif = pminS;
+   //pmaxS = pminS;
    cout << "     sDif: " << sDif << "     pminS: " << pminS << "     pmaxS: " << pmaxS << endl << flush;
+
+   if(hour == 0){  
+     cout << "distance with time change: " << (pminS+curSpeed)*timeSeg << endl << flush;
+     cout << "CurSpeed: " << curSpeed << "    initSpeed: " << initSpeed << endl << flush;
+   }
 
    //if(madeIt == 0 && time/60 == 24){
       //cout << "pminS: " << pminS << "     pmaxS: " << pmaxS << endl;
@@ -225,9 +239,9 @@ void pathSegment::genPreBearDif(){
       kSum = findPreKB(sampleVal-bDif, i, tWB1, tWB2);
 
       if(kSum == kSum){
-         if(time/60 == 24 && madeIt == 0){
-            cout << "   kSum: " << kSum << "     sample: " << sampleVal << endl;
-         }
+         //if(time/60 == 24 && madeIt == 0){
+            //cout << "   kSum: " << kSum << "     sample: " << sampleVal << endl;
+         //}
          preBearF.push_back(kSum);
          preBearPos.push_back(sampleVal);
       }
@@ -247,6 +261,9 @@ void pathSegment::genPreSpeedDif(){
    //tWS = pmaxS - pminS;
    tWS2 = pmaxS - sDif;
    tWS1 = sDif - pminS; 
+
+   cout << "tWS2 -> " << tWS2 << endl << flush;
+   cout << "tWS1 -> " << tWS1 << endl << flush;
    
    for(i = 0; i < samples; i++){
       if(i < samples/2){
@@ -263,6 +280,7 @@ void pathSegment::genPreSpeedDif(){
       kSum = findPreKS(sampleVal-sDif, i, tWS1, tWS2);
       
       if(kSum == kSum){
+         //cout << "i: " << i << "   kSum: " << kSum << "     sample: " << sampleVal << endl;
          preSpeedF.push_back(kSum);
          preSpeedPos.push_back(sampleVal);
       }
@@ -534,8 +552,8 @@ double pathSegment::getPreProbBear(double p){
    if(rangeT < 0){
       mod = -1.0;
    }
-   //rangeL = (rangeL + rangeT*areaRatio)*((fTime-sTime)/60.0);
    rangeL = (rangeL + rangeT*areaRatio);
+
 
    if(debugPrint == 1){
       cout << "  Bearing: " << rangeL << endl;
@@ -602,7 +620,6 @@ double pathSegment::getPreProbSpeed(double p){
    }
    rangeL = rangeL + rangeT*areaRatio;
 
-   //cout << "  Speed: " << rangeL;
    //cout << "       Returning rangeL: " << rangeL << "     min: " << pminS << "     max: " << pmaxS << endl;
    return rangeL;
 }
@@ -618,8 +635,8 @@ void pathSegment::BearingToFile(){
    cout << "bDif: " << bDif << endl;
    cout << "pmaxB: " << pmaxB << endl;
    for(i = 0; i < preBearF.size(); i++){
-      cout << "  i: " << i;
-      cout << "   preBearF: " << preBearF[i] << endl;
+      //cout << "  i: " << i;
+      //cout << "   preBearF: " << preBearF[i] << endl;
       //pos = pminB + ((double)i/(double)preBearF.size())*(pmaxB-pminB);
       /*if(i < 5){
          pos = pminB + ((double)i/(double)preBearF.size())*(bDif-pminB);

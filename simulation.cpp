@@ -328,7 +328,8 @@ void simulation::printBearBin(){
 void simulation::buildExp(){
    int i;
 
-   int index[] = {5, 3, 1, 2, 0, 4};
+   //int index[] = {5, 3, 1, 2, 0, 4};
+   int index[] = {0, 1, 2, 3, 4, 5};
 
    for(i=0; i < (advList.size())/2; i++){
       advErrorList.push_back(index[i]); 
