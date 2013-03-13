@@ -19,6 +19,11 @@ extern int debugPrint;
 
 extern double errorRadR[];
 
+double gSDif;
+double gPhS1;
+double gPhS2;
+double gSegments;
+
 pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<Vector4d*> * e1, std::vector<Vector4d*> * e2, double initBear, double initSpeed){
 
    double dist;
@@ -32,6 +37,7 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
    double tempDist = 0.0;
    double timeSeg = 1.0;
    double curSpeed = 0.0;
+   bool setGlobal = false;
 
    //double h[3] = [9, 12, 24];
 
@@ -58,26 +64,31 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
        errDist = errorRadR[1];
        tempDist = dist*3;
        timeSeg = 9;
+       setGlobal = true;
        break;
      case 9:
        errDist = errorRadR[2];
        tempDist = dist*4;
        timeSeg = 12;
+       setGlobal = true;
        break;
      case 21:
        errDist = errorRadR[3];
        tempDist = dist*4;
        timeSeg = 12;
+       setGlobal = true;
        break;
      case 33:
        errDist = errorRadR[4];
        tempDist = dist*4;
        timeSeg = 12;
+       setGlobal = true;
        break;
      case 45:
        errDist = errorRadR[5];
        tempDist = dist*8;
        timeSeg = 24;
+       setGlobal = true;
        break;
    }
 
@@ -105,9 +116,6 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
    //  Treat each side differently.
    double e1Pre, e2Pre;
    double e1PreSpeed, e2PreSpeed;
-   double predPre;
-
-   //cout << "hour: " << hour << "   seg: " << seg << endl;
 
    if(seg == 0){
       e1Pre = e2Pre = initBear;
@@ -117,19 +125,13 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
       v1.set(e1->at(seg)->x, e1->at(seg)->y);
       v2.set(e1->at(seg-1)->x, e1->at(seg-1)->y);
       e1Pre = fmod(findBearing_2(&v2, &v1) + 0.0, 360.0);
-      //cout << "   e1 v1: " << v1 << "   v2: " << v2 << endl;
       v1.set(e2->at(seg)->x, e2->at(seg)->y);
       v2.set(e2->at(seg-1)->x, e2->at(seg-1)->y);
       e2Pre = fmod(findBearing_2(&v2, &v1) + 0.0, 360.0);
-      //cout << "   e2 v1: " << v1 << "   v2: " << v2 << endl;
 
       e1PreSpeed = haversine(e1->at(seg)->x, e1->at(seg-1)->x, e1->at(seg)->y, e1->at(seg-1)->y)/3.0;
       e2PreSpeed = haversine(e2->at(seg)->x, e2->at(seg-1)->x, e2->at(seg)->y, e2->at(seg-1)->y)/3.0;
    }
-   //cout << "v1: " << v1 << "   v2: " << v2 << endl;
-   //cout << "b2: " << b2 << " e1Pre: " << e1Pre << endl;
-   //cout << "b3: " << b3 << " e2Pre: " << e2Pre << endl;
-   //cout << "p0->z: " << p0->z << "    b1: " << b1 << "   e1Pre: " << e1Pre << endl;
 
    phB1 = findDif(b2, e1Pre);
    phB2 = findDif(b3, e2Pre);
@@ -158,8 +160,18 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
    cout << "   dist: " << tempDist << "      errDist: " << errDist << endl << flush;
    cout << "   phS1 : " << phS1 << "     phS2: " << phS2 << endl << flush;
 
+   if(setGlobal){
+     gSegments = timeSeg/3.0;
+     gSDif = sDif/gSegments;
+     gPhS1= gPhS1/gSegments;
+     gPhS2 = gPhS2/gSegments;
+   }
+   sDif = gSDif;
+   gPhS1 = gPhS1;
+   gPhS2 = gPhS2;
 
-   bRange = 1.5;
+
+   bRange = 1.0;
    sRange = 1.0;
 
    if(phB1 < phB2){
@@ -173,39 +185,21 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
    if(phS1 < phS2){
       pminS = sDif - sRange*abs(phS1);
       pmaxS = sDif + sRange*abs(phS2);
-      //pminS = phS1;
-      //pmaxS = phS2;
    }
    else{
       pminS = sDif - sRange*abs(phS2);
       pmaxS = sDif + sRange*abs(phS1);
-      //pminS = phS2;
-      //pmaxS = phS1;
    }
 
-   //sDif = pmaxS;
-   //pminS = pmaxS;
 
-   //sDif = pminS;
-   //pmaxS = pminS;
-   cout << "     sDif: " << sDif << "     pminS: " << pminS << "     pmaxS: " << pmaxS << endl << flush;
+   cout << "     sDif: " << sDif << "     pminS: " << pminS 
+        << "     pmaxS: " << pmaxS << endl << flush;
+
 
    if(hour == 0){  
      cout << "distance with time change: " << (pminS+curSpeed)*timeSeg << endl << flush;
      cout << "CurSpeed: " << curSpeed << "    initSpeed: " << initSpeed << endl << flush;
    }
-
-   //if(madeIt == 0 && time/60 == 24){
-      //cout << "pminS: " << pminS << "     pmaxS: " << pmaxS << endl;
-      //cout << "    d2: " << d2 << " e1PreSpeed: " << e1PreSpeed << endl;
-      //cout << "    d3: " << d3 << " e2PreSpeed: " << e2PreSpeed << endl;
-      //cout << "    phS1 : " << phS1 << "    phS2: " << phS2 << endl;
-      //cout << "    e1Pre: " << e1Pre << "     e2Pre: " << e2Pre << endl;
-      //cout << "    p0: " << *p0 << endl;
-      //cout << "  sDif: " << sDif << endl;
-   //}
-
-   //cout << "pMinB: " << pminB << "     pMaxB: " << pmaxB << endl;
 
    genPreBearDif();
    computePreAreaB();
@@ -239,9 +233,6 @@ void pathSegment::genPreBearDif(){
       kSum = findPreKB(sampleVal-bDif, i, tWB1, tWB2);
 
       if(kSum == kSum){
-         //if(time/60 == 24 && madeIt == 0){
-            //cout << "   kSum: " << kSum << "     sample: " << sampleVal << endl;
-         //}
          preBearF.push_back(kSum);
          preBearPos.push_back(sampleVal);
       }
@@ -255,7 +246,7 @@ void pathSegment::genPreBearDif(){
 void pathSegment::genPreSpeedDif(){
    double kSum;
    int i;
-   double tWS, tWS2, tWS1;
+   double tWS2, tWS1;
    double sampleVal;
 
    //tWS = pmaxS - pminS;
@@ -275,12 +266,10 @@ void pathSegment::genPreSpeedDif(){
       else{
          sampleVal = sDif +(1.0-((double)(samples-i-1)/(samples/2)))*tWS2;
       }
-      //sampleVal = pminS+((double)i/(double)samples)*tWS;
       
       kSum = findPreKS(sampleVal-sDif, i, tWS1, tWS2);
       
       if(kSum == kSum){
-         //cout << "i: " << i << "   kSum: " << kSum << "     sample: " << sampleVal << endl;
          preSpeedF.push_back(kSum);
          preSpeedPos.push_back(sampleVal);
       }
@@ -562,6 +551,8 @@ double pathSegment::getPreProbBear(double p){
       debugPrint = 0;
    }
 
+   return preBearPos[50];
+
    return rangeL;
 }
 
@@ -619,6 +610,10 @@ double pathSegment::getPreProbSpeed(double p){
       mod = -1.0;
    }
    rangeL = rangeL + rangeT*areaRatio;
+
+   //return preSpeedPos[0];
+   return preSpeedPos[50];
+   //return preSpeedPos[100];
 
    //cout << "       Returning rangeL: " << rangeL << "     min: " << pminS << "     max: " << pmaxS << endl;
    return rangeL;
