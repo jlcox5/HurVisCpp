@@ -111,12 +111,14 @@ class simulation{
       void drawChipText(QGLWidget *);
       void drawTargetArea(QGLWidget *);
       void drawSectors(QGLWidget *);
+      void drawSlider();
 
       // Handling the chips
       void selectChip(Vector2d p);
       void releaseChip();
       void moveChip(Vector2d v);
       int chipsPlaced();
+      void checkSliderPressed(Vector2d p);
 
       // Print functions
       void printBearBin();

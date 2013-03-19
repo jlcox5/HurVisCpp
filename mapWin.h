@@ -48,6 +48,8 @@ class mapWin : public QGLWidget{
       void checkButtonPress(double x, double y);
       void checkButtonRelease(double x, double y);
 
+      void checkSliderPress(double x, double y);
+
       // Write out results
       void printResults();
 

@@ -1676,6 +1676,10 @@ void advisory::drawChipBox(){
   glEnd();
 }
 
+void advisory::drawSlider(){
+  slider.drawSlider();
+}
+
 // Functions for sorting the paths based on their distanced at a segment to the predicted path 
 void advisory::sortPath(int seg){
    sortInd = seg;
@@ -1973,6 +1977,11 @@ int advisory::chipsPlaced(){
    //cout << "returning 1" << endl;
    return 1;
 }
+
+void advisory::checkSliderPressed(Vector2d p){
+   slider.checkSliderPressed(p);
+}
+
 
 void advisory::buildTargetArea(){
    int angle;

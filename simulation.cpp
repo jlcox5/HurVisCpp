@@ -178,6 +178,10 @@ void simulation::drawSectors(QGLWidget * g){
    adv->drawSectors(g);
 }
 
+void simulation::drawSlider(){
+   adv->drawSlider();
+}
+
 // Draw all of the data points from historical data
 void simulation::drawDataPoints(){
    std::vector<posPoint*>::iterator posListIt;
@@ -266,6 +270,10 @@ void simulation::moveChip(Vector2d v){
 
 int simulation::chipsPlaced(){
    return adv->chipsPlaced();
+}
+
+void simulation::checkSliderPressed(Vector2d p){
+   adv->checkSliderPressed(p);
 }
 
 void simulation::printSectors(){

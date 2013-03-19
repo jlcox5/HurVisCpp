@@ -19,6 +19,7 @@
 #include "chip.h"
 #include "sector.h"
 #include "hurEyePoints.h"
+#include "slider.h"
 
 bool sortPath(path * p1, path * p2);
 
@@ -47,6 +48,7 @@ class advisory{
       std::vector<double> chipDistList;
       std::vector<std::vector<int>*> sectorFull;
       std::vector<sector*> sectorList;
+      Slider slider;
       double rad;
 
       double inConePercent;
@@ -141,6 +143,7 @@ class advisory{
       void drawChips();
       void drawChipText(QGLWidget * g);
       void drawChipBox();
+      void drawSlider();
 
       // Current point on path information
       int getPresLat(){ return presLat; }
@@ -167,6 +170,7 @@ class advisory{
       void releaseChip();
       void moveChip(Vector2d v);
       int chipsPlaced();
+      void checkSliderPressed(Vector2d p);
 
       // Build the sectors for user interaction
       void buildTargetArea();

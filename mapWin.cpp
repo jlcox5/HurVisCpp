@@ -235,6 +235,7 @@ void mapWin::paintGL(){
    sim->drawChips();
    //sim->drawTargetArea();
    sim->drawSectors(this);
+   sim->drawSlider();
    drawNext();
 
    glDisable(GL_BLEND);
@@ -368,6 +369,7 @@ void mapWin::mousePressEvent(QMouseEvent * e){
 
    p.set(e->x(), e->y());
    sim->selectChip(p);
+   sim->checkSliderPressed(p);
 
    initPress.set(e->x(), e->y());
 
