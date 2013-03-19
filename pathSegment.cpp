@@ -551,7 +551,7 @@ double pathSegment::getPreProbBear(double p){
       debugPrint = 0;
    }
 
-   return preBearPos[50];
+   //return preBearPos[50];
 
    return rangeL;
 }
@@ -612,7 +612,7 @@ double pathSegment::getPreProbSpeed(double p){
    rangeL = rangeL + rangeT*areaRatio;
 
    //return preSpeedPos[0];
-   return preSpeedPos[50];
+   //return preSpeedPos[50];
    //return preSpeedPos[100];
 
    //cout << "       Returning rangeL: " << rangeL << "     min: " << pminS << "     max: " << pmaxS << endl;

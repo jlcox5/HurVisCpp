@@ -171,6 +171,7 @@ class advisory{
       void moveChip(Vector2d v);
       int chipsPlaced();
       void checkSliderPressed(Vector2d p);
+      void moveSlider(Vector2d v);
 
       // Build the sectors for user interaction
       void buildTargetArea();

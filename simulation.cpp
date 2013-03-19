@@ -276,6 +276,10 @@ void simulation::checkSliderPressed(Vector2d p){
    adv->checkSliderPressed(p);
 }
 
+void simulation::moveSlider(Vector2d v){
+   adv->moveSlider(v);
+}
+
 void simulation::printSectors(){
    adv->printSectors();
 }

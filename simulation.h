@@ -112,6 +112,7 @@ class simulation{
       void drawTargetArea(QGLWidget *);
       void drawSectors(QGLWidget *);
       void drawSlider();
+      void moveSlider(Vector2d v);
 
       // Handling the chips
       void selectChip(Vector2d p);

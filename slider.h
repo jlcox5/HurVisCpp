@@ -20,11 +20,19 @@ class Slider{
 
    void drawSlider();
    void checkSliderPressed(Vector2d);
+   void moveSlider(Vector2d);
+
+   int getCurTick(){ return curTick; }
 
   private:
     Vector2d curPos;
+    Vector2d barPos;
     Vector4d color;
     double sizeX, sizeY;
+    double barLenX, barLenY;
+    int dX;
+    int curTick;
+    int tickSpacing;
     bool sliderPressed;
 
     // Shouldn't copy a slider

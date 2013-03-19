@@ -351,11 +351,13 @@ void mapWin::update(){
 }
 
 void mapWin::mouseMoveEvent(QMouseEvent * e){
-   Vector2d dif;
+   Vector2d dif, pos;
    e->accept();
 
    dif.set(e->x()-initPress.x, e->y()-initPress.y);
+   pos.set(e->x(), e->y());
    sim->moveChip(dif);
+   sim->moveSlider(pos);
 
    initPress.set(e->x(), e->y());
 

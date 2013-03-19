@@ -1982,6 +1982,10 @@ void advisory::checkSliderPressed(Vector2d p){
    slider.checkSliderPressed(p);
 }
 
+void advisory::moveSlider(Vector2d p){
+   slider.moveSlider(p);
+}
+
 
 void advisory::buildTargetArea(){
    int angle;
