@@ -70,7 +70,6 @@ void Slider::drawSlider(){
     glVertex3f(curPos.x+(sizeX/2), curPos.y+sizeY, 0.0);
     glVertex3f(curPos.x-(sizeX/2), curPos.y+sizeY, 0.0);
   glEnd();
-
 }
 
 void Slider::checkSliderPressed(Vector2d p){

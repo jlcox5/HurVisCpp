@@ -989,6 +989,8 @@ void advisory::drawGenPathsRainDrop(){
    float tempTrans;
    float age;
 
+   Vector2d * curPos;
+
    // Display generated paths
    for (pathIt = pathList.begin(); pathIt != pathList.end(); pathIt++){
       //tempTrans = (*pathIt)->getInt().w*sim->getPathOpacity();
@@ -1004,8 +1006,12 @@ void advisory::drawGenPathsRainDrop(){
       //cout << "path size: " << (*pathIt)->posList.size() << endl << flush;
       //usleep(1);
       int i = 0;
-      for (pos = (*pathIt)->posList.begin(); pos != (*pathIt)->posList.end(); pos++) {
-        if(i == 0 || i ==3 || i == 7 || i == 11 || i == 15 || i == 23){
+      i = min(slider.getCurTick(), (int)((*pathIt)->posList.size())-1);
+      i = max(i, 0);
+
+      curPos = (*pathIt)->posList[i];
+      //for (pos = (*pathIt)->posList.begin(); pos != (*pathIt)->posList.end(); pos++) {
+        //if(i == 0 || i ==3 || i == 7 || i == 11 || i == 15 || i == 23){
 
           int angle;
           double angle_radians;
@@ -1014,11 +1020,11 @@ void advisory::drawGenPathsRainDrop(){
 
           float newTempTrans = tempTrans - (distAdd/1.5);
           float newDropRadius = 3 + 7*(1.0 - newTempTrans);
-          glColor4f(redVal, greenVal, blueVal, newTempTrans);
+          glColor4f(redVal, (greenVal+(i*0.02)), blueVal+(i*0.02), newTempTrans);
 
-          if(i == 3){
-            glColor4f(0.0, 0.0, 1.0, 1.0);
-          }
+          //if(i == 3){
+          //  glColor4f(0.0, 0.0, 1.0, 1.0);
+          //}
 
           x1 = y1 = 0.0;
   
@@ -1027,8 +1033,10 @@ void advisory::drawGenPathsRainDrop(){
           glBegin(GL_POLYGON);
           for(angle = 0; angle < 360; angle += 5){
             angle_radians = angle*(double)M_PI/180.0;
-            x = (*pos)->x + newDropRadius*(double)cos(angle_radians);
-            y = (*pos)->y + newDropRadius*(double)sin(angle_radians);
+            //x = (*pos)->x + newDropRadius*(double)cos(angle_radians);
+            //y = (*pos)->y + newDropRadius*(double)sin(angle_radians);
+            x = curPos->x + newDropRadius*(double)cos(angle_radians);
+            y = curPos->y + newDropRadius*(double)sin(angle_radians);
             if(angle == 0){
               x1 = x; 
               y1 = y;
@@ -1056,14 +1064,18 @@ void advisory::drawGenPathsRainDrop(){
           glDisable(GL_DEPTH_TEST);
           distAdd += 0.02;
 
-          greenVal += 0.1;
-          blueVal += 0.1; 
-        }
+          greenVal += 0.02;
+          blueVal += 0.02; 
+
+        //  i++;
+        //  if(i > slider.getCurTick()){
+        //    break;
+        //  }
+        //}
 
         (*pathIt)->setInt((*pathIt)->getInt().w - ((age)*0.000005));
         (*pathIt)->incAge();
-        i++;
-      }
+      //}
    }
    for (pathIt = pathList.begin(); pathIt != pathList.end();){
      if((*pathIt)->getInt().w <= 0.0){
