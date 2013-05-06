@@ -21,8 +21,7 @@
 extern int colorClosest;
 extern unsigned int counter;
 
-simulation::simulation(int htd, double l1, double l2, double l3, double l4, double h, double a, double s, double sda,
-            double tl1, double tl2, double ml1, double ml2, double dt, int im){
+simulation::simulation(int htd, double l1, double l2, double l3, double l4, double h, double a, double sda, double tl1, double tl2, double ml1, double ml2, int im){
 
    int i;
    std::vector<Vector2d*> toPush;
@@ -54,44 +53,31 @@ simulation::simulation(int htd, double l1, double l2, double l3, double l4, doub
 // Build the statistical paths based on the normal distribution of bearing and speed
 // differences
 void simulation::buildStatPaths(){
-   int i = 0;
-
-   for(i=0; i < advList.size(); i++){
+   for(unsigned int i=0; i < advList.size(); i++){
       //advList[i]->buildStatPaths();
    }
 }
 
 // Find the average line of the generated paths for each advisory
 void simulation::findAvgLine(){
-   //int i;
-
-   //for(i=0; i < hurToDisplay; i++){
-   if(getCurrentAdv() < advCombList.size()/2){
+   if(getCurrentAdv() < (int)(advCombList.size()/2)){
       adv->findAvgLine();
    }
-   //}
 }
 
 // Find average over 68% of paths
 void simulation::findAvgLineNew(){
-   if(getCurrentAdv() < advCombList.size()/2){
+   if(getCurrentAdv() < (int)(advCombList.size()/2)){
       adv->findNewAvg();
    }
 }
 
 // Draw the generated paths for each advisory
 void simulation::drawGenPaths(){
-   //int i;
-
-   /*for(i=0; i < hurToDisplay; i++){
-      if(hurToDisplay == 6){
-         glViewport( (i%3)*width, (int)(floor(i/3)+1)%2*height, width, height);
-      }*/
    //adv->drawGenPaths();
    adv->drawGenPathsRainDrop();
    //adv->drawGenPathsEyePoint();
    adv->drawErrorConeRadius();
-   //}
 }
 
 int simulation::drawGenPathsTrail(int step){
@@ -105,58 +91,28 @@ void simulation::drawGenPathsClosest(){
 
 // Draw the heat map for each advisory
 void simulation::drawHeatMap(){
-   //int i;
-
-   /*for(i=0; i < hurToDisplay; i++){
-      if(hurToDisplay == 6){
-         glViewport( (i%3)*width, (int)(floor(i/3)+1)%2*height, width, height);
-      }*/
    adv->drawHeatMap();
-   //}
 }
 
 // Draw the average of the generated paths for each advisory
 void simulation::drawAvgPath(){
-   //int i;
-
-   /*for(i=0; i < hurToDisplay; i++){
-      if(hurToDisplay == 6){
-         glViewport( (i%3)*width, (int)(floor(i/3)+1)%2*height, width, height);
-      }*/
-   if(getCurrentAdv() < advCombList.size()/2){
+   if(getCurrentAdv() < (int)(advCombList.size()/2)){
       adv->drawAvgPath();
       //adv->drawNewAvg();
    }
-   //advList[curHur]->drawNewAvg();
-   //}
 }
 
 // Draw the forecasted path and the error cone for each advisory
 void simulation::drawForecastPath(){
-   //int i;
-
-   /*for(i=0; i < hurToDisplay; i++){
-      if(hurToDisplay == 6){
-         glViewport( (i%3)*width, (int)(floor(i/3)+1)%2*height, width, height);
-      }*/
-      adv->drawForecastPath();
-      //adv->drawErrorSmooth();
-   //}
+   adv->drawForecastPath();
+   //adv->drawErrorSmooth();
 }
 
 // Draw the standard deviation for each advisory
 void simulation::drawStdDevPath(){
-   //int i;
-
-   /*for(i=0; i < hurToDisplay; i++){
-      if(hurToDisplay == 6){
-         glViewport( (i%3)*width, (int)(floor(i/3)+1)%2*height, width, height);
-      }*/
-   if(getCurrentAdv() < advCombList.size()/2){
+   if(getCurrentAdv() < (int)(advCombList.size()/2)){
       adv->drawStdDevPath();
    }
-      //advList[curHur]->drawStdDevPathRev();
-   //}
 }
 
 // Draw the chips for each advisory
@@ -338,12 +294,12 @@ void simulation::printBearBin(){
 }
 
 void simulation::buildExp(){
-   int i;
+   unsigned int i;
 
    //int index[] = {5, 3, 1, 2, 0, 4};
    int index[] = {0, 1, 2, 3, 4, 5};
 
-   for(i=0; i < (advList.size())/2; i++){
+   for(i=0; i < (unsigned int)(advList.size()/2); i++){
       advErrorList.push_back(index[i]); 
       advPathList.push_back(index[i]);
    }

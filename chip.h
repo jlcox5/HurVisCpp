@@ -32,7 +32,7 @@ class chip{
       void setPos(Vector2d p){ pos = p; sectorPos = p; }
       void setInitPos(){ pos = initPos; sectorPos = initPos; }
       void selectChip(Vector2d p);
-      int releaseChip(Vector2d p, std::vector<Vector2d*> se, std::vector<double> tl, double r);
+      int releaseChip(Vector2d p, std::vector<double> tl, double r);
       void moveChip(Vector2d v);
       void printPos();
 
@@ -42,7 +42,7 @@ class chip{
 
       void drawChip();
       void setDrawChip(bool const);
-      const bool getDrawChip() const{ return draw; }
+      bool getDrawChip() const{ return draw; }
 
       void setSector(int i){ sector = i; }
 

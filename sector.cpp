@@ -59,7 +59,7 @@ sector::~sector(){
 
 void sector::drawSectors(QGLWidget * g){
 
-  int i;
+  unsigned int i;
   int drawLast = 0;
 
   // Draw sector outline
@@ -68,7 +68,7 @@ void sector::drawSectors(QGLWidget * g){
   glLineWidth(1);
   glBegin(GL_LINE_LOOP);
     glVertex3f(center.x, center.y, 0.0);
-    for(int j = 0; j < endPairs[i]->size(); j++){
+    for(unsigned int j = 0; j < endPairs[i]->size(); j++){
       glVertex3f(endPairs[i]->at(j)->x, endPairs[i]->at(j)->y, 0.0);
     }
   glEnd();
@@ -81,21 +81,21 @@ void sector::drawSectors(QGLWidget * g){
         glColor4f(0.75, 0.0, 0.75, 0.5);
         glBegin(GL_POLYGON);
           glVertex3f(center.x, center.y, 0.0);
-          for(int j = 0; j < endPairs[i]->size(); j++){
+          for(unsigned int j = 0; j < endPairs[i]->size(); j++){
             glVertex3f(endPairs[i]->at(j)->x, endPairs[i]->at(j)->y, 0.0);
           }
         glEnd();
         glColor4f(0.75, 0.0, 0.75, 1.0);
         glBegin(GL_LINE_LOOP);
           glVertex3f(center.x, center.y, 0.0);
-          for(int j = 0; j < endPairs[i]->size(); j++){
+          for(unsigned int j = 0; j < endPairs[i]->size(); j++){
             glVertex3f(endPairs[i]->at(j)->x, endPairs[i]->at(j)->y, 0.0);
           }
         glEnd();
         drawLast = i;
       }
       else{
-        for(int j = 0; j < endPairs[i]->size()-1; j++){
+        for(unsigned int j = 0; j < endPairs[i]->size()-1; j++){
           glColor4f(0.75, 0.0, 0.75, 0.5);
           glBegin(GL_POLYGON);
             glVertex3f(endPairs[i]->at(j)->x, endPairs[i]->at(j)->y, 0.0);
@@ -107,10 +107,10 @@ void sector::drawSectors(QGLWidget * g){
 
         glColor4f(0.75, 0.0, 0.75, 1.0);
         glBegin(GL_LINE_LOOP);
-        for(int j = 0; j < endPairs[i]->size(); j++){
+        for(unsigned int j = 0; j < endPairs[i]->size(); j++){
           glVertex3f(endPairs[i]->at(j)->x, endPairs[i]->at(j)->y, 0.0);
         }
-        for(int j = endPairs[drawLast]->size()-1; j >= 0; j--){
+        for(int j = (int)(endPairs[drawLast]->size())-1; j >= 0; j--){
           glVertex3f(endPairs[drawLast]->at(j)->x, endPairs[drawLast]->at(j)->y, 0.0);
         }
         glEnd();
@@ -127,7 +127,7 @@ void sector::addChip(int add){
   int chipIndex;
 
   cout << "Start of chip values: " << endl;
-  for(int i = 0; i < chipValues.size(); i++){
+  for(unsigned int i = 0; i < chipValues.size(); i++){
     set += chipValues[i];
     cout << "   " << chipValues[i] << endl;
   }
@@ -137,11 +137,11 @@ void sector::addChip(int add){
   chipValues.push_back(add);
 
   sort(chipValues.begin(), chipValues.end(), sortChips);
-  for(int j = 0; j < drawEnd.size(); j++){
+  for(unsigned int j = 0; j < drawEnd.size(); j++){
     drawEnd[j] = false;
   }
   chipIndex = 0;
-  for(int j = 0; j < chipValues.size(); j++){
+  for(unsigned int j = 0; j < chipValues.size(); j++){
     chipIndex += chipValues[j];
     cout << "chipIndex: " << chipIndex << endl;
     drawEnd[chipIndex] = true;
@@ -163,11 +163,9 @@ int sector::findChip(Vector2d & p){
   double dist;
   int chipCount = 0;
   int ret, chipIndex;
-  bool inSector;
-  double angle_radians;
 
   Vector2d u1, u2;
-  double x, y, theta;
+  double theta;
 
   u1 = (center-p).normalize();
    
@@ -199,7 +197,7 @@ int sector::findChip(Vector2d & p){
 
   dist = sqrt((p.x-center.x)*(p.x-center.x) + (p.y-center.y)*(p.y-center.y));
   cout << "dist: " << dist << endl;
-  for(int i = 0; i < radius.size(); i++){
+  for(unsigned int i = 0; i < radius.size(); i++){
     if(drawEnd[i] == true && chipValues.size() > 0){
       cout << "   drawEnd is true... comparing: " << radius[i] << " and dist " << endl;
       if(radius[i] >= dist){
@@ -207,13 +205,13 @@ int sector::findChip(Vector2d & p){
         ret = chipValues[chipCount];
         removeChip(chipValues[chipCount]);
  
-        for(int j = 0; j < drawEnd.size(); j++){
+        for(unsigned int j = 0; j < drawEnd.size(); j++){
           drawEnd[j] = false;
         }
         cout << "   Reset draw end..." << endl;
         sort(chipValues.begin(), chipValues.end(), sortChips);
         chipIndex = 0;
-        for(int j = 0; j < chipValues.size(); j++){
+        for(unsigned int j = 0; j < chipValues.size(); j++){
           chipIndex += chipValues[j];
           drawEnd[chipIndex] = true;
         }
@@ -238,7 +236,7 @@ void sector::drawValueText(QGLWidget * g){
   int sum = 0;
 
   // Find value to print
-  for(int i = 0; i < chipValues.size(); i++){
+  for(unsigned int i = 0; i < chipValues.size(); i++){
     sum += chipValues[i];
   }
 

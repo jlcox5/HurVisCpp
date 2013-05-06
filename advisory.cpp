@@ -61,7 +61,7 @@ bool sp(path * p1, path * p2){
 }
 
 advisory::advisory(std::vector<Vector2d*> projPathPos,
-      double curLat, double curLon, double curDeg, double curSpeed, char * predFile){
+      double curLat, double curLon, double curDeg, double curSpeed, string predFile){
 
    chip * c;
 
@@ -75,9 +75,7 @@ advisory::advisory(std::vector<Vector2d*> projPathPos,
    // Build the projected path
    buildProjPath(projPathPos, curDeg);
    buildErrorCone();
-   //speed = (haversine(projPathFull[0]->x, projPathFull[1]->x, projPathFull[0]->y, projPathFull[1]->y))/9;
    speed = curSpeed;
-   //pre = new predictedPath(predFile, &errorCone1, &errorCone2);
    pre = new predictedPath(predFile, &ecSmooth1, &ecSmooth2);
    adv = projPath[4];
    adv2 = projPath[5];
@@ -449,13 +447,7 @@ void advisory::buildErrorCone(){
    std::vector<Vector2d>::iterator _ec;
    std::vector<Vector4d*>::iterator _ec2;
 
-   Vector4d * pa, * pb;
    Vector2d q0, q1, q2;
-   double degInit, degFinal;
-   double s0, vX, vY;
-   double ts = 9.0;
-   int numSeg = 3;
-   int count = 0;
 
    buildECSmooth();
    buildTrueCone();
@@ -905,7 +897,6 @@ void advisory::drawGenPaths(){
 
    // Values for testing whether the median sort is correct
    int side = 0;
-   int med = (int)(pathList.size()/2.0);
    adv = projPath[4];
    adv2 = projPath[5];
    sortPath(22);
@@ -985,7 +976,6 @@ void advisory::drawGenPathsRainDrop(){
    std::vector<Vector2d*>::iterator pos;
    std::vector<path*>::iterator pathIt;
    Vector2d draw1, draw2;
-   float lineWidth;
    float tempTrans;
    float age;
 
@@ -1001,10 +991,6 @@ void advisory::drawGenPathsRainDrop(){
       float greenVal = 0.0;
       float blueVal = 0.0;
       float distAdd = 0.0;
-      //float colStepSize = 0.5/(*pathIt)->posList.size();
-      float colStepSize = 0.0;
-      //cout << "path size: " << (*pathIt)->posList.size() << endl << flush;
-      //usleep(1);
       int i = 0;
       i = min(slider.getCurTick(), (int)((*pathIt)->posList.size())-1);
       i = max(i, 0);
@@ -1133,7 +1119,8 @@ int advisory::drawGenPathsTrail(int step){
           int angle;
           double angle_radians;
           double x, y;
-          double x1, y1;
+          double x1 = 0.0;
+          double y1 = 0.0;
   
           float newTempTrans = 1.0 - (0.5*percBubDrawn);
           float newDropRadius = 3 + (4*percBubDrawn);
@@ -1436,7 +1423,7 @@ void advisory::drawErrorConeRadius(){
   double curDeg = 0;
   Vector2d draw1;
 
-  for(int i = 1; i < projPath.size()-1; i++){
+  for(unsigned int i = 1; i < projPath.size()-1; i++){
     glBegin(GL_LINE_LOOP);
     for(curDeg = 0; curDeg < 360.0; curDeg++){
       draw1 = locateDestination_2(projPath[i]->x, projPath[i]->y, errorRad[i], curDeg);
@@ -1701,9 +1688,8 @@ void advisory::sortPath(int seg){
 
 void advisory::buildECSmooth(){
    double h;
-   int i;
+   unsigned int i;
    Vector2d p0, p1;
-   Vector2d * toPush;
 
    // First Side
    for(i=0; i<errorCone1.size(); i++){
@@ -1749,9 +1735,9 @@ void advisory::buildTrueConeSide(int side){
   Vector2d * push;
   Vector2d p0, p1, pT;
   double l, r, R, x, d, theta, phi1, phi2;
-  double bearing, nbearing;
+  double bearing;
 
-  for(int i=0; i<projPath.size()-2; i++){
+  for(unsigned int i=0; i<projPath.size()-2; i++){
     p0.set(projPath[i]->x, projPath[i]->y);
     p1.set(projPath[i+1]->x, projPath[i+1]->y);
 
@@ -1814,8 +1800,6 @@ void advisory::drawTrueCone(){
   glColor4f(0.5, 0.5, 1.0, 0.5);
   glLineWidth(1.5);
 
-  int count = 0;
-  
   //glEnable(GL_DEPTH_TEST);
   /*glBlendColor(0.0, 0.0, 1.0, 0.5);
   glEnable(GL_COLOR_LOGIC_OP);
@@ -1844,7 +1828,7 @@ void advisory::drawTrueCone(){
   //double errorRad[] = {50.004, 100.471, 144.302, 187.515, 390.463};
   double errorRad[] = {0.0, 50.004, 100.471, 144.302, 187.515, 283.263, 390.463};
   double curDeg = 0;
-  for(int i = 1; i < projPath.size()-1; i++){
+  for(unsigned int i = 1; i < projPath.size()-1; i++){
     glLogicOp(GL_AND);
     glBegin(GL_POLYGON);
     for(curDeg = 0; curDeg < 360.0; curDeg++){
@@ -1861,7 +1845,6 @@ void advisory::drawTrueCone(){
 }
 
 void advisory::interpECSmooth(Vector2d p0, Vector2d p1, double h, int side){
-   double curTime = 0.0;
    double dist = haversine(p0.x, p1.x, p0.y, p1.y);
    double speed = dist/h;
    int segments = (int)(h/3.0);
@@ -1932,16 +1915,13 @@ void advisory::selectChip(Vector2d p){
 void advisory::releaseChip(){
    std::vector<chip*>::iterator _i;
    Vector2d p, sectP, pos0;
-   int i, j, startPos;
-   int initCS, finCS, posFill;
-   double r, t, x, y;
-   double angle_radians;
+   int initCS, finCS;
 
    cout << "Start release chip...";
    p = translateToScreen(projPath[0]->x, projPath[0]->y); 
    for(_i = chips.begin(); _i != chips.end(); _i++){
       initCS = (*_i)->getChipSect();
-      finCS = (*_i)->releaseChip(p, sectorEnds, thetaList, rad);
+      finCS = (*_i)->releaseChip(p, thetaList, rad);
       cout << "InitCS: " << initCS << "    finCS: " << finCS << endl;
       if(finCS == -1){
         cout << "Setting initital position..." << endl;
@@ -2003,7 +1983,6 @@ void advisory::buildTargetArea(){
    int angle;
    double angle_radians;
    double x, y;
-   double x1, y1;
 
    Vector2d pos;
    Vector2d * push;
@@ -2020,10 +1999,9 @@ void advisory::buildTargetArea(){
 }
 
 void advisory::buildSectors(){
-   int angle, i;
+   int i;
    double angle_radians;
    double x, y;
-   double x1, y1;
    double theta;
 
    Vector2d pos0, pos1, pos2, u1, u2;
@@ -2094,7 +2072,6 @@ void advisory::printSectors(){
    std::vector<Vector2d*>::iterator _i;
    Vector2d pos;
 
-   int i;
    cout << "Printing sectors..." << endl;
    pos = translateToScreen(projPath[0]->x, projPath[0]->y);
 
@@ -2104,7 +2081,7 @@ void advisory::printSectors(){
    }
 
    cout << "Proj path: " << endl;
-   for(i = 0; i < projPath.size(); i++){
+   for(unsigned int i = 0; i < projPath.size(); i++){
       cout << "   " << *(projPath[i]) << endl;
    }
    cout << "Finished! " << endl;
@@ -2117,10 +2094,8 @@ void advisory::detChipLockPos(){
    Vector2d c, s0, s1, p, dif, u1, u2;
    double d;
 
-   int angle, i;
    double angle_radians;
    double x, y;
-   double x1, y1;
    double theta, baseTheta;
 
    // Sample positions from hand placement of chips
@@ -2208,7 +2183,7 @@ void advisory::findInConePercent(){
   int t = 0;
 
   if(size > 0){
-    for(int i = 0; i < pathList.size(); i++){
+    for(unsigned int i = 0; i < pathList.size(); i++){
       if(pathList[i]->getInCone() == true){
         t++;
       }

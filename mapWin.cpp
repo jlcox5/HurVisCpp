@@ -20,7 +20,6 @@
 #include "path.h"
 #include "P6Image.h"
 #include "simulation.h"
-//#include "screenshot.h"
 #include "Matrix.h"
 
 
@@ -46,7 +45,6 @@ extern int preOnly;
 extern int colorClosest;
 extern int averageOnAll;
 
-extern int modify;
 extern int totalPaths;
 extern double omega;
 extern double userSig;   //  Starts at error cone radius at 69 hours
@@ -103,11 +101,11 @@ void mapWin::initializeGL(){
 }
 
 void mapWin::resizeGL(int w, int h){
-   glViewport(0, 0, sim->getW(), sim->getH());
+   glViewport(0, 0, w, h);
 
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
-   gluOrtho2D(0.0, sim->getW(), sim->getH(), 0.0);
+   gluOrtho2D(0.0, w, h, 0.0);
 
    glMatrixMode(GL_MODELVIEW);
    glLoadIdentity();
@@ -123,7 +121,6 @@ void mapWin::paintGL(){
    std::vector<advisory*>::iterator advIt;
    Vector2d draw1, draw2;
    float lineWidth;
-   unsigned int curAdv = 0;
 
    lineWidth = 0.5;
 
@@ -207,7 +204,7 @@ void mapWin::paintGL(){
    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
    // Display the projected path
-   if(sim->getCurrentAdv() >= sim->advCombList.size()/2){
+   if(sim->getCurrentAdv() >= (int)(sim->advCombList.size()/2)){
       if (displayProjectedPath == 1) {
          sim->drawForecastPath();
       }
@@ -296,12 +293,11 @@ void mapWin::drawNext(){
 
 void mapWin::update(){
    unsigned int curAdv = sim->getCurrentAdv();
-   hurEyePoints * hep;
 
    int r;
    double chosen = 0.0;
 
-   if(sim->getCurrentAdv() < sim->advCombList.size()/2){
+   if(sim->getCurrentAdv() < (int)(sim->advCombList.size()/2)){
          if(step == 0){
            for(int i = 0; i < 100; i++){
              totalPaths++;
@@ -314,7 +310,7 @@ void mapWin::update(){
              chosen = (double)r/10000000.0;
 
              //if(chosen <= 0.32){
-               testPath = new path(sim->adv->getLat(), sim->adv->getLon(), sim->adv->getDeg(), sim->adv->getSpeed(), curAdv, modify);
+               testPath = new path(sim->adv->getLat(), sim->adv->getLon(), sim->adv->getDeg(), sim->adv->getSpeed(), curAdv);
                sim->adv->pathList.push_back(testPath);
                /*if(interactive == -1){
                   if(averageOnAll > 0){
@@ -327,6 +323,7 @@ void mapWin::update(){
              //}
              //else{
                //if(sim->adv->eyePointList.size() < 5){
+               //  hurEyePoints * hep;
                //  hep = new hurEyePoints(sim->adv->pre);
                //  sim->adv->eyePointList.push_back(hep);
                //}
@@ -335,7 +332,7 @@ void mapWin::update(){
            //curAdv++;
          }
          if(step == 24){
-           for(int i = 0; i < sim->adv->pathList.size(); i++){
+           for(unsigned int i = 0; i < sim->adv->pathList.size(); i++){
              delete(sim->adv->pathList[i]);
            }
            sim->adv->pathList.clear();
@@ -346,8 +343,6 @@ void mapWin::update(){
 
    sim->adv->findInConePercent();
    updateGL();
-   modify = modify * -1;
-   modify = 1;
 }
 
 void mapWin::mouseMoveEvent(QMouseEvent * e){
@@ -515,9 +510,6 @@ void mapWin::keyPressEvent(QKeyEvent * k){
       cout << "New userSig: " << userSig << "\n";
    }
 
-   if (k->text().toStdString() == "p" || k->text().toStdString() == "P"){
-      //screenshot("image.png");
-   }
    if (k->text().toStdString() == "s" || k->text().toStdString() == "S"){
       stall = stall * -1;
    }
@@ -626,7 +618,7 @@ void mapWin::checkButtonRelease(double x, double y){
       }
    }
    cout << "completed: " << completed << "     advList: " << sim->advList.size() << endl;
-   if(completed == sim->advList.size()){
+   if(completed == (int)(sim->advList.size())){
      printResults();
    }
    buttonPressed = 0;
@@ -645,8 +637,8 @@ void mapWin::checkButtonRelease(double x, double y){
 void mapWin::printResults(){
    fstream file;
    std::vector<advisory*>::iterator _a;
-   int i, j;
-   int numSectors = 8;
+   unsigned int i, j;
+   unsigned int numSectors = 8;
 
    file.open("results.txt", fstream::out | fstream::ate | fstream::app);
 
@@ -655,7 +647,7 @@ void mapWin::printResults(){
    sim->setCurAdv(0);
    for(i = 0; i < sim->advList.size(); i++){
       file << "  " << i << endl;
-      if(sim->getCurrentAdv() < sim->advList.size()/2){
+      if(sim->getCurrentAdv() < (int)(sim->advList.size()/2)){
          file << "    0  // PATHS" << endl;
       }
       else{

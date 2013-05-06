@@ -394,12 +394,12 @@ void bin::computeAreaS(){
    }
 }
 
-double bin::getProbBear3Hour(double p, double min, int findPre, int histOrPre){
+double bin::getProbBear3Hour(double p, double min, int histOrPre){
    double kdeVal, rangeL, omega;
    double chosen, preBear;
    int r, q;
 
-   kdeVal = 3*getProbBear(p, min, findPre);
+   kdeVal = 3*getProbBear(p);
 
    srand(counter);
    counter = (counter*21)%UINT_MAX;
@@ -434,7 +434,7 @@ double bin::getProbBear3Hour(double p, double min, int findPre, int histOrPre){
 }
 
 // Parameter has to be between 0-1
-double bin::getProbBear(double p, double min, int findPre){
+double bin::getProbBear(double p){
    std::vector<double>::iterator _d;
    double newP = p*areaB;
    double n, testD;
@@ -488,12 +488,12 @@ double bin::getProbBear(double p, double min, int findPre){
    return rangeL;
 }
 
-double bin::getProbSpeed3Hour(double p,double min, int findPre, int histOrPre){
+double bin::getProbSpeed3Hour(double p,double min, int histOrPre){
    double kdeVal, rangeL, omega;
    double chosen, preSpeed;
    int r, q;
 
-   kdeVal = 3*getProbSpeed(p, min, findPre);
+   kdeVal = 3*getProbSpeed(p);
 
    srand(counter);
    counter = (counter*21)%UINT_MAX;
@@ -520,7 +520,7 @@ double bin::getProbSpeed3Hour(double p,double min, int findPre, int histOrPre){
 }
 
 // Parameter has to be between 0-1
-double bin::getProbSpeed(double p,double min, int findPre){
+double bin::getProbSpeed(double p){
    std::vector<double>::iterator _d;
    double newP = p*areaS;
    double n, testD;

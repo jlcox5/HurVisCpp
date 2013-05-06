@@ -26,9 +26,9 @@ class gridStruct{
    public:
       std::vector<std::vector<std::vector<bin*> *> *> grid; 
 
-      gridStruct(int dLat, int dLon, int dpBin, int miLa, int maLa, int miLo, int maLo, char * filename, char * filename2);
+      gridStruct(int dLat, int dLon, int dpBin, int miLa, int maLa, int miLo, int maLo, string filename);
 
-      void loadFile(char * filename, int t);
+      void loadFile(string filename, int t);
       void addPoints(gridPoint * g);
       void printGrid();
 

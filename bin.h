@@ -52,10 +52,10 @@ class bin{
       void genSpeedDif();
       void computeAreaB();
       void computeAreaS();
-      double getProbBear3Hour(double p, double min, int findPre, int histOrPre);
-      double getProbBear(double p, double min, int findPre);
-      double getProbSpeed3Hour(double p, double min, int findPre, int histOrPre);
-      double getProbSpeed(double p, double min, int findPre);
+      double getProbBear3Hour(double p, double min, int histOrPre);
+      double getProbBear(double p);
+      double getProbSpeed3Hour(double p, double min, int histOrPre);
+      double getProbSpeed(double p);
       void BearingToFile();
       void buildSegDist(int curAdv);
       double findOmega(double min);

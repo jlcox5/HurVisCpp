@@ -27,7 +27,7 @@ extern double bearRatio;
 // For random number generation
 extern unsigned int counter;
 
-path::path(double curLat, double curLon, double curDeg, double curSpeed, unsigned int curAdv, int modify){
+path::path(double curLat, double curLon, double curDeg, double curSpeed, unsigned int curAdv){
    Vector2d * toAdd; // List of screen coords to draw the line
    Vector2d temp;
    std::vector<Vector2d*>::iterator i;
@@ -47,7 +47,6 @@ path::path(double curLat, double curLon, double curDeg, double curSpeed, unsigne
    double cont = 69.0/sim->getHours(); // 69 hours is time frame
 
    int r;
-   double ch = 0.0;
    
    curDistance = 0.0;
    dist = 0.0;
@@ -130,7 +129,7 @@ path::path(double curLat, double curLon, double curDeg, double curSpeed, unsigne
          temp.x = toSearch.x;
          temp.y = toSearch.y;
 
-         toSearch = nextPoint(toSearch, chosen, curAdv);
+         toSearch = nextPoint(toSearch, chosen);
 
          curDistance = curDistance + haversine(toSearch.x, temp.x, toSearch.y, temp.y);
          toAdd = new Vector2d;
@@ -167,7 +166,7 @@ path::path(double curLat, double curLon, double curDeg, double curSpeed, unsigne
    else{
       temp.x = toSearch.x;
       temp.y = toSearch.y;
-      toSearch = nextPoint(toSearch, chosen, curAdv);
+      toSearch = nextPoint(toSearch, chosen);
       toAdd = new Vector2d;
       toAdd->x = toSearch.x;
       toAdd->y = toSearch.y;
@@ -261,7 +260,7 @@ void path::addSegment(){
    Vector2d * toAdd;
    std::vector<Vector2d*>::iterator i;
 
-   toSearch = nextPoint(lastPosInfo, lastChosen, 0);
+   toSearch = nextPoint(lastPosInfo, lastChosen);
    curDistance = curDistance + haversine(lastPosInfo.x, toSearch.x, lastPosInfo.y, toSearch.y);
    lastPosInfo.set(toSearch.x, toSearch.y, toSearch.z, toSearch.w);
    temp = translateToScreen(toSearch.x, toSearch.y);

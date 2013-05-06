@@ -59,8 +59,8 @@ class simulation{
       std::vector< std::vector<Vector2d*> > bearBin;
       advisory * adv;
 
-      simulation(int htd, double l1, double l2, double l3, double l4, double h, double a, double s, double sda,
-            double tl1, double tl2, double ml1, double ml2, double dt, int im);
+      simulation(int htd, double l1, double l2, double l3, double l4, double h, double a,
+                 double sda, double tl1, double tl2, double ml1, double ml2, int im);
 
       // Get
       int getDispNum(){ return hurToDisplay; }

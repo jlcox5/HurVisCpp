@@ -23,7 +23,7 @@ class predictedPath{
       std::vector<Vector4d*> predPathThreeHour;
       std::vector<pathSegment*> predPathSeg;
 
-      predictedPath(char * filename, std::vector<Vector4d*> * e1, std::vector<Vector4d*> * e2);
+      predictedPath(string filename, std::vector<Vector4d*> * e1, std::vector<Vector4d*> * e2);
       void buildPathSegments(std::vector<Vector4d*> * e1, std::vector<Vector4d*> * e2);
 };
 

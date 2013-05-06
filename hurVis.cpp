@@ -73,7 +73,7 @@ int debugPrint = 0;
 // Generates the next point for a path list
 // Returns the long, lat, speed in kph, and bearing 
 // in the x(north/south) and y(east/west) directions
-Vector4d nextPoint(Vector4d curPoint, double steps, unsigned int curAdv){
+Vector4d nextPoint(Vector4d curPoint, double steps){
    Vector4d toReturn;
    Vector4d toSearch, found;
    
@@ -150,8 +150,7 @@ Vector4d nextPoint(Vector4d curPoint, double steps, unsigned int curAdv){
 
          // For new vis... need to remove for old method
          speedHistPre = 0;
-         sd = dataGrid->grid[degLat]->at(degLon)->at(bin)->getProbSpeed3Hour(chosen2, min, 1, speedHistPre);
-         //sd = dataGrid->grid[degLat]->at(degLon)->at(bin)->getProbSpeed3Hour(chosen2, min, 1, 0);
+         sd = dataGrid->grid[degLat]->at(degLon)->at(bin)->getProbSpeed3Hour(chosen2, min, speedHistPre);
          fSpeed = sd; 
 
          // bd is multiplied by the hours per time step... currently this is a value in simulation
@@ -168,7 +167,7 @@ Vector4d nextPoint(Vector4d curPoint, double steps, unsigned int curAdv){
          // For new vis... need to remove for old method
          bearHistPre = 0;
 
-         bd = dataGrid->grid[degLat]->at(degLon)->at(bin)->getProbBear3Hour(chosen, min, 1, bearHistPre);
+         bd = dataGrid->grid[degLat]->at(degLon)->at(bin)->getProbBear3Hour(chosen, min, bearHistPre);
 
          //cout << "Resorting to new: " << found.z << ", " << found.w << "   -   " << comLat << ", " << comLon << "\n";
       }
@@ -264,7 +263,7 @@ void buildAdvisory(){
    toPush = new Vector2d(-86.0, 37.5);
    projPathPos.push_back(toPush);
 
-   newAdv = new advisory(projPathPos, 24.5, -85.0, 275.0, 11.11, "kat3Hr.txt");
+   newAdv = new advisory(projPathPos, 24.5, -85.0, 275.0, 11.11, string("kat3Hr.txt"));
    sim->advList.push_back(newAdv);
 
    projPathPos.clear();
@@ -285,7 +284,7 @@ void buildAdvisory(){
    toPush = new Vector2d(-94.5, 32.0);
    projPathPos.push_back(toPush);
 
-   newAdv = new advisory(projPathPos, 24.2, -85.0, 320.0, 16.11, "gustav3Hr.txt");
+   newAdv = new advisory(projPathPos, 24.2, -85.0, 320.0, 16.11, string("gustav3Hr.txt"));
    sim->advList.push_back(newAdv);
 
    projPathPos.clear();
@@ -306,7 +305,7 @@ void buildAdvisory(){
    toPush = new Vector2d(-102.0, 27.0);
    projPathPos.push_back(toPush);
 
-   newAdv = new advisory(projPathPos, 21.0, -91.6, 0.0, 7.408, "alex3Hr.txt");
+   newAdv = new advisory(projPathPos, 21.0, -91.6, 0.0, 7.408, string("alex3Hr.txt"));
    sim->advList.push_back(newAdv);
 
    projPathPos.clear();
@@ -327,7 +326,7 @@ void buildAdvisory(){
    toPush = new Vector2d(-86.0, 34.0);
    projPathPos.push_back(toPush);
 
-   newAdv = new advisory(projPathPos, 22.0, -85.4, 325.0, 9.206, "ivan3Hr2.txt");
+   newAdv = new advisory(projPathPos, 22.0, -85.4, 325.0, 9.206, string("ivan3Hr2.txt"));
    sim->advList.push_back(newAdv);
 
    projPathPos.clear();
@@ -393,7 +392,7 @@ void buildAdvisory(){
    toPush = new Vector2d(-97.0, 33.0);
    projPathPos.push_back(toPush);
 
-   newAdv = new advisory(projPathPos, 24.4, -86.8, 275.0, 20.37, "rita3Hr.txt");
+   newAdv = new advisory(projPathPos, 24.4, -86.8, 275.0, 20.37, string("rita3Hr.txt"));
    sim->advList.push_back(newAdv);
 
    projPathPos.clear();
@@ -437,6 +436,6 @@ void buildAdvisory(){
    toPush = new Vector2d(-79.5, 30.0);
    projPathPos.push_back(toPush);
 
-   newAdv = new advisory(projPathPos, 22.2, -86.3, 330.0, 16.67, "ida3Hr.txt");
+   newAdv = new advisory(projPathPos, 22.2, -86.3, 330.0, 16.67, string("ida3Hr.txt"));
    sim->advList.push_back(newAdv);
 }

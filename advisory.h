@@ -113,7 +113,7 @@ class advisory{
       std::vector<double>  stdDevDistRev;
 
       // Constructor
-      advisory(std::vector<Vector2d*> projPathPos, double curLat, double curLon, double curDeg, double curSpeed, char * predFile);
+      advisory(std::vector<Vector2d*> projPathPos, double curLat, double curLon, double curDeg, double curSpeed, string predFile);
 
       // Statistical functions
       void findAvgLine();

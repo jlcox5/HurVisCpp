@@ -37,12 +37,11 @@ void chip::selectChip(Vector2d p){
    }
 }
 
-int chip::releaseChip(Vector2d p, std::vector<Vector2d*> se, std::vector<double> tl, double r){
+int chip::releaseChip(Vector2d p, std::vector<double> tl, double r){
    std::vector<double>::iterator _d1;
    std::vector<double>::iterator _d2;
    Vector2d pos2, u1, u2;
    double theta, x, y, angle_radians;
-   int foundSector = 0;
    int s = 0;
    int initSect = sector;
 

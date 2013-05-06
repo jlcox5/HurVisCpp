@@ -6,7 +6,7 @@ SOURCES += advisory.cpp bin.cpp geoFunct.cpp gridStruct.cpp hurVis.cpp main.cpp 
            chip.cpp sector.cpp hurEyePoints.cpp slider.cpp
            
 HEADERS += advisory.h bin.h geoFunct.h gridPoint.h gridStruct.h hurVis.h ImageFile.h          \
-           Matrix.h P6Image.h path.h pathSegment.h posPoint.h predictedPath.h screenshot.h    \
+           Matrix.h P6Image.h path.h pathSegment.h posPoint.h predictedPath.h                 \
            simulation.h Utility.h Vector.h velocityFunct.h window.h mapWin.h chip.h sector.h  \
            hurEyePoints.h slider.h
 

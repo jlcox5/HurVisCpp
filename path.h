@@ -38,7 +38,7 @@ class path{
       path * pathFound;
 
       // Builds a complete path with kdTree
-      path(double curLon, double curLat, double curDeg, double curSpeed, unsigned int curAdv, int modify);
+      path(double curLon, double curLat, double curDeg, double curSpeed, unsigned int curAdv);
       // Only inserts first point
       path(double curLon, double curLat, double curDeg, double curSpeed);
       // Already determined

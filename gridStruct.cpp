@@ -15,7 +15,7 @@ using namespace std;
 
 bool printBS = false;
 
-gridStruct::gridStruct(int dLat, int dLon, int dpBin, int miLa, int maLa, int miLo, int maLo, char * filename, char * filename2): degLat(dLat), degLon(dLon), degPerBin(dpBin), minLat(miLa), maxLat(maLa), minLon(abs(miLo)), maxLon(abs(maLo)){
+gridStruct::gridStruct(int dLat, int dLon, int dpBin, int miLa, int maLa, int miLo, int maLo, string filename): degLat(dLat), degLon(dLon), degPerBin(dpBin), minLat(miLa), maxLat(maLa), minLon(abs(miLo)), maxLon(abs(maLo)){
    int i, j, k;
    int binSize = (int)ceil(360/dpBin);
    std::vector<std::vector<bin*> *> * lat;
@@ -92,7 +92,7 @@ gridStruct::gridStruct(int dLat, int dLon, int dpBin, int miLa, int maLa, int mi
    }
 }
 
-void gridStruct::loadFile(char * filename, int t){
+void gridStruct::loadFile(string filename, int t){
    fstream file;
    char peekC;
    gridPoint * toIns;
@@ -104,7 +104,7 @@ void gridStruct::loadFile(char * filename, int t){
    curLon = 0;
    curBin = 0;
 
-   file.open(filename, fstream::in);
+   file.open(filename.c_str(), fstream::in);
 
    while(!file.eof() && !file.bad()){
       file.get(peekC);

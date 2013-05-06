@@ -15,7 +15,6 @@
 #include "advisory.h"
 #include "path.h"
 #include "P6Image.h"
-#include "screenshot.h"
 #include "Matrix.h"
 #include "simulation.h"
 #include "gridStruct.h"
@@ -29,9 +28,6 @@ gridStruct * dataGrid;
 path * testPath;
 path * testPath2;
 path * curPath;
-
-// Global Variables and Such
-//int wWidth, wHeight;
 
 simulation * sim;
 
@@ -58,7 +54,6 @@ int preOnly = -1;
 int colorClosest = -1;
 int averageOnAll = 1;
 
-int modify = -1;
 int totalPaths = 0;
 double omega = 0.0;
 double userSig = 298.0;   //  Starts at error cone radius at 69 hours
@@ -82,7 +77,7 @@ int main( int argc, char *argv[] ){
 
    int im = atoi(argv[1]);
    // Build simulation
-   sim = new simulation(1, -100.0, -75.0, 17.0, 31.0, (180.0/60.0), 1.0, 1.6, 0.953, 15.8, -25.0, 33, -100.0, 100.0, im);
+   sim = new simulation(1, -100.0, -75.0, 17.0, 31.0, (180.0/60.0), 1.0, 0.953, 15.8, -25.0, 33, -100.0, im);
    if(sim->getDispNum() == 1){
       sim->setW(1024);
       sim->setH(790);
@@ -98,7 +93,7 @@ int main( int argc, char *argv[] ){
    buildAdvisory();
    sim->buildExp();
 
-   dataGrid = new gridStruct(17, 26, 60, 17, 33, -75, -100, "resHistCur.txt", "resPreCur.txt"); 
+   dataGrid = new gridStruct(17, 26, 60, 17, 33, -75, -100, string("resHistCur.txt")); 
 
    //sim->buildStatPaths();
 

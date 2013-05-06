@@ -10,7 +10,7 @@
 #include "predictedPath.h"
 #include "geoFunct.h"
 
-predictedPath::predictedPath(char * filename, std::vector<Vector4d*> * e1, std::vector<Vector4d*> * e2){
+predictedPath::predictedPath(string filename, std::vector<Vector4d*> * e1, std::vector<Vector4d*> * e2){
    fstream file;
    int curLat, curLon, curBin;
    double lat, lon, bear, speed;
@@ -20,7 +20,7 @@ predictedPath::predictedPath(char * filename, std::vector<Vector4d*> * e1, std::
    curLon = 0;
    curBin = 0;
 
-   file.open(filename, fstream::in);
+   file.open(filename.c_str(), fstream::in);
 
    file >> dec >> initBear;
    file >> dec >> initSpeed;

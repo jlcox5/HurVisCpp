@@ -32,5 +32,7 @@ window::window(QWidget * parent, Qt::WindowFlags f) : QWidget(parent, f)
 }
 
 void window::keyPressEvent(QKeyEvent * k){
-   std::cout << "Dang." << std::endl;
+   if(k){
+     std::cout << "Need to add interaction" << std::endl;
+   }
 }

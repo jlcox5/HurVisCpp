@@ -12,7 +12,7 @@
 #define HURVIS_H
 
 
-Vector4d nextPoint(Vector4d curPoint, double steps, unsigned int curAdv);
+Vector4d nextPoint(Vector4d curPoint, double steps);
 double findDeg(double x, double y);
 Vector2d closePointOnPath(Vector4d * projPath1, Vector4d * projPath2, Vector4d curPoint);
 void buildAdvisory();
