@@ -115,11 +115,6 @@ class advisory{
       void setPresLat(int i){ presLat = i; }
       void setPresLon(int i){ presLon = i; }
 
-      // New average and cone methods
-      //void findNewAvg();    // Sorts paths, picks 68% and draws average as well as error cone
-      // void drawNewAvg();
-      // void newStdDeviationLine();
-
       // Functions for finding median and std deviation lines based on median
       void sortPath(int seg);
 

@@ -424,6 +424,7 @@ void advisory::interpECSmooth(Vector2d p0, Vector2d p1, double h, int side){
       else{ ecSmooth2.push_back(toAdd); } 
    }
 
+   // Chris, this is tricky!
    if(h == 24){
       toAdd = new Vector4d(p1.x, p1.y, tBear, speed);
       if(side == 0){ ecSmooth1.push_back(toAdd); }
