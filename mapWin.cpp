@@ -34,7 +34,6 @@ extern int displayDataPoints;
 extern int displayDataPaths;
 extern int displayProjectedPath;
 extern int displayGenPaths;
-extern int displayAvgPath;
 extern int heatMap;
 extern int interactive;
 extern int hitButton;
@@ -125,9 +124,9 @@ void mapWin::paintGL(){
    lineWidth = 0.5;
 
    glClear(GL_COLOR_BUFFER_BIT);
-   if (displayProjectedPath == 1) {
+   //if (displayProjectedPath == 1) {
       sim->drawForecastPath();
-   }
+   //}
 
    if(interactive == -1){
       glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
@@ -210,11 +209,6 @@ void mapWin::paintGL(){
       }
    }
 
-   if (displayAvgPath == 1){
-      sim->drawAvgPath();
-      sim->drawStdDevPath();
-   }
-
    // Display all data points
    if (displayDataPoints == 1) {
       sim->drawDataPoints();
@@ -229,16 +223,16 @@ void mapWin::paintGL(){
       drawCurPath();
    }
 
-   sim->drawChips();
+   //sim->drawChips();
    //sim->drawTargetArea();
-   sim->drawSectors(this);
+   //sim->drawSectors(this);
    sim->drawSlider();
    drawNext();
 
    glDisable(GL_BLEND);
    glDisable(GL_LINE_SMOOTH);
 
-   sim->drawChipText(this);
+   //sim->drawChipText(this);
 }
 
 void mapWin::drawNext(){
@@ -313,12 +307,7 @@ void mapWin::update(){
                testPath = new path(sim->adv->getLat(), sim->adv->getLon(), sim->adv->getDeg(), sim->adv->getSpeed(), curAdv);
                sim->adv->pathList.push_back(testPath);
                /*if(interactive == -1){
-                  if(averageOnAll > 0){
-                     sim->findAvgLine();
-                  }
-                  else{
-                     sim->findAvgLineNew();
-                  }
+                   sim->findAvgLineNew();
                }*/
              //}
              //else{
@@ -409,10 +398,6 @@ void mapWin::keyPressEvent(QKeyEvent * k){
 
    if (k->text().toStdString() == "4") {
       displayGenPaths = displayGenPaths * -1;
-      updateGL();
-   }
-   if (k->text().toStdString() == "5") {
-      displayAvgPath = displayAvgPath * -1;
       updateGL();
    }
    if (k->text().toStdString() == "8"){

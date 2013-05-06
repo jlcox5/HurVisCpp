@@ -43,7 +43,6 @@ int displayDataPoints = -1;
 int displayDataPaths = -1;
 int displayProjectedPath = 1;
 int displayGenPaths = 1;
-int displayAvgPath = -1;
 int heatMap = -1;
 int interactive = -1;
 int hitButton = -1;

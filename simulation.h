@@ -34,7 +34,7 @@ class simulation{
 
       // Simulation Values
       double hours;                // Hours per segment of each path
-      double alpha;           // User defined variables for combining the velocity of the 
+      double alpha;                // User defined variables for combining the velocity of the 
                                    // projected path and the data point found
       double pathOpacity;
 
@@ -92,21 +92,14 @@ class simulation{
       void setCurAdv(int i){ curHur = i%12; adv = advList[abs(advCombList[curHur])]; }
       int getCurAdv(){ return curHur; }
 
-      // Statistical functions
-      void findAvgLine();
-      void findAvgLineNew();
-      void buildStatPaths();
-
       // Draw Functions
       void drawGenPaths();
       void drawHeatMap();
-      void drawAvgPath();
       void drawForecastPath();
       void drawStdDevPath();
       void drawDataPoints();
       void drawDataPaths();
       int drawGenPathsTrail(int);
-      void drawGenPathsClosest();
       void drawChips();
       void drawChipText(QGLWidget *);
       void drawTargetArea(QGLWidget *);

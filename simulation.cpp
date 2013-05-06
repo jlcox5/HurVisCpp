@@ -50,28 +50,6 @@ simulation::simulation(int htd, double l1, double l2, double l3, double l4, doub
    initMethod = im;
 }
 
-// Build the statistical paths based on the normal distribution of bearing and speed
-// differences
-void simulation::buildStatPaths(){
-   for(unsigned int i=0; i < advList.size(); i++){
-      //advList[i]->buildStatPaths();
-   }
-}
-
-// Find the average line of the generated paths for each advisory
-void simulation::findAvgLine(){
-   if(getCurrentAdv() < (int)(advCombList.size()/2)){
-      adv->findAvgLine();
-   }
-}
-
-// Find average over 68% of paths
-void simulation::findAvgLineNew(){
-   if(getCurrentAdv() < (int)(advCombList.size()/2)){
-      adv->findNewAvg();
-   }
-}
-
 // Draw the generated paths for each advisory
 void simulation::drawGenPaths(){
    //adv->drawGenPaths();
@@ -85,34 +63,15 @@ int simulation::drawGenPathsTrail(int step){
    return step;
 }
 
-void simulation::drawGenPathsClosest(){
-   adv->drawGenPathsClosest();
-}
-
 // Draw the heat map for each advisory
 void simulation::drawHeatMap(){
    adv->drawHeatMap();
 }
 
-// Draw the average of the generated paths for each advisory
-void simulation::drawAvgPath(){
-   if(getCurrentAdv() < (int)(advCombList.size()/2)){
-      adv->drawAvgPath();
-      //adv->drawNewAvg();
-   }
-}
-
 // Draw the forecasted path and the error cone for each advisory
 void simulation::drawForecastPath(){
    adv->drawForecastPath();
-   //adv->drawErrorSmooth();
-}
-
-// Draw the standard deviation for each advisory
-void simulation::drawStdDevPath(){
-   if(getCurrentAdv() < (int)(advCombList.size()/2)){
-      adv->drawStdDevPath();
-   }
+   adv->drawErrorSmooth();
 }
 
 // Draw the chips for each advisory

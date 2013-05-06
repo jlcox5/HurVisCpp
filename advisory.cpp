@@ -167,7 +167,6 @@ void advisory::buildProjPath(std::vector<Vector2d*> projPathPos, double projPath
       }
 
       segAdd = genVelocity((*p1)->x, (*p2)->x, (*p1)->y, (*p2)->y, time);
-      segmentVelocity.push_back(segAdd);
 
       toAdd = new Vector4d;
       toAdd->x = (*p1)->x;
@@ -290,599 +289,213 @@ void advisory::buildProjPathFull(){
 
       tempError = (1-f)*errorRadR[in1] + f*errorRadR[in2];
       distWeightCone.push_back(tempError);
-      //cout << "   Segment: " << t << ", " << steps << " pos: " << *intPos << "  error: " << tempError << "\n";
       steps += 1;
    }
-   //cout << "Total size: " << projPathFull.size() << " and " << distWeightCone.size() << "\n";
-
-   /*for(_f = projPathFull.begin(); _f != projPathFull.end(); _f++){
-      cout << "point: " << *(*_f) << "\n";
-   }*/
 }
 
+
+// Chris -- The fuctions buildErrorCone(), buildECSmooth(), and interpECSmooth() should give
+// you what you want. =)
+
+// Find the points along that error cone that correspond to the points given in the NHC
+// Advisory
 void advisory::buildErrorCone(){
    // Radius of the error cone using 2010 values
-   //double errorRad[] = {66.672, 114.824, 157.42, 200.016, 298.172, 407.44};
    double errorRad[] = {50.004, 100.471, 144.302, 187.515, 283.263, 390.463};
    int i;
 
    // Avg path list
    std::vector<Vector4d*>::iterator p1;
    std::vector<Vector4d*>::iterator p2;
+   std::vector<Vector2d> errorCone1;
+   std::vector<Vector2d> errorCone2;
 
-   Vector2d endPoint1, endPoint2, lastAvg;
+   Vector2d endPoint1, endPoint2;
 
-   Vector2d toDraw, mapPos, * t1,  * t2;
-   double tempBear, startBear, endBear, bDif, bStep;
+   Vector2d tempPoint, mapPos, * t1,  * t2;
+   double tempBear, startBear, endBear;
 
    startBear = endBear = 0.0;
 
    // New std deviation using distance
    t1 = new Vector2d();
    t2 = new Vector2d();
-   i = 0;
-   p2 = projPath.begin()+1;
 
-   cout << "projPath size: " << projPath.size() << "\n";
-   toDraw.set((*projPath.begin())->x, (*projPath.begin())->y);
+   // Build first side
    mapPos.set((*projPath.begin())->x, (*projPath.begin())->y);
-   toDraw = translateToScreen((*projPath.begin())->x, (*projPath.begin())->y);
-   stdDev1.push_back(toDraw);
    errorCone1.push_back(mapPos);
-   for(p1 = projPath.begin(); p2 != projPath.end()-1; p1++){
-      cout << " I: " << i << endl;
-      //if(i < 4){
-         t1->set((*p1)->x, (*p1)->y);
-         t2->set((*p2)->x, (*p2)->y);
-      /*}
-      else if(i == 4){
-         t1->set((*p1)->x, (*p1)->y);
-         t2->set((*p2)->x, (*p2)->y);
-         t2->set( (((*p2)->x-(*p1)->x)/2+(*p1)->x), (((*p2)->y-(*p1)->y)/2+(*p1)->y));
-      }
-      else{
-         t1->set((*p1)->x, (*p1)->y);
-         t2->set((*p2)->x, (*p2)->y);
-         t1->set( (((*p2)->x-(*p1)->x)/2+(*p1)->x), (((*p2)->y-(*p1)->y)/2+(*p1)->y));
-      }*/
-      tempBear = findBearing_2(t1, t2);
-      tempBear = tempBear - 90.0;
+   for(p1 = projPath.begin(), p2=projPath.begin()+1, i=0; 
+       p2 != projPath.end()-1; 
+       p1++, p2++, i++){
+
+      t1->set((*p1)->x, (*p1)->y);
+      t2->set((*p2)->x, (*p2)->y);
+      tempBear = findBearing_2(t1, t2) - 90.0;
       if(tempBear < 0.0){
          tempBear = tempBear + 360;
       }
-
-      toDraw = locateDestination_2(t2->x, t2->y, errorRad[i], tempBear);
-
-      if(p2 == projPath.end()-2){
-         endPoint1.set(toDraw.x, toDraw.y);
-         lastAvg.set(t2->x, t2->y);
-         startBear = tempBear;
-      }
-
-      mapPos.set(toDraw.x, toDraw.y);
-      toDraw = translateToScreen(toDraw.x, toDraw.y);
-
-      stdDev1.push_back(toDraw);
+      tempPoint = locateDestination_2(t2->x, t2->y, errorRad[i], tempBear);
+      mapPos.set(tempPoint.x, tempPoint.y);
       errorCone1.push_back(mapPos);
-      /*if(i == 4){
-         p1--;
-         p2--;
-      }*/
-      p2++;
-      i++;
-      if(i == 4){
-         i++;
-      }
    }
 
-   i = 0;
-   p2 = projPath.begin()+1;
-   toDraw.set((*projPath.begin())->x, (*projPath.begin())->y);
+   // Build second side
    mapPos.set((*projPath.begin())->x, (*projPath.begin())->y);
-   toDraw = translateToScreen((*projPath.begin())->x, (*projPath.begin())->y);
-   stdDev2.push_back(toDraw);
    errorCone2.push_back(mapPos);
-   for(p1 = projPath.begin(); p2 != projPath.end()-1; p1++){
-      //if(i < 4){
-         t1->set((*p1)->x, (*p1)->y);
-         t2->set((*p2)->x, (*p2)->y);
-      /*}
-      else if(i == 4){
-         t1->set((*p1)->x, (*p1)->y);
-         t2->set((*p2)->x, (*p2)->y);
-         t2->set( (((*p2)->x-(*p1)->x)/2+(*p1)->x), (((*p2)->y-(*p1)->y)/2+(*p1)->y));
-      }
-      else{
-         t1->set((*p1)->x, (*p1)->y);
-         t2->set((*p2)->x, (*p2)->y);
-         t1->set( (((*p2)->x-(*p1)->x)/2+(*p1)->x), (((*p2)->y-(*p1)->y)/2+(*p1)->y));
-      }*/
-      tempBear = findBearing_2(t1, t2);
-      tempBear = fmod(tempBear + 90.0, 360.0);
+   for(p1 = projPath.begin(), p2=projPath.begin()+1, i=0; 
+       p2 != projPath.end()-1;
+       p1++, p2++, i++){
 
-      toDraw = locateDestination_2(t2->x, t2->y, errorRad[i], tempBear);
-
-      if(p2 == projPath.end()-2){
-         endPoint2.set(toDraw.x, toDraw.y);
-         endBear = tempBear;
-      }
-
-      mapPos.set(toDraw.x, toDraw.y);
-      toDraw = translateToScreen(toDraw.x, toDraw.y);
-
-      stdDev2.push_back(toDraw);
+      t1->set((*p1)->x, (*p1)->y);
+      t2->set((*p2)->x, (*p2)->y);
+      tempBear = fmod(findBearing_2(t1, t2) + 90.0, 360.0);
+      tempPoint = locateDestination_2(t2->x, t2->y, errorRad[i], tempBear);
+      mapPos.set(tempPoint.x, tempPoint.y);
       errorCone2.push_back(mapPos);
-      /*if(i == 4){
-         p1--;
-         p2--;
-      }*/
-      p2++;
-      i++;
-      if(i == 4){
-        i++;
-      }
    }
 
-   // Build top cone
-   bDif = findDif(startBear, endBear);
-   if(bDif < 0){
-     cout << "Bad bDif for error cone top!!!!! " << bDif << endl << endl;
-     bDif = bDif*-1;
-   }
-   bStep = bDif/25;
+   // Interpolate to find the points inbetween the error cone points that correspond
+   // to the advisory positions.
+   buildECSmooth(errorCone1, errorCone2);
 
-   toDraw = translateToScreen(endPoint1.x, endPoint1.y);
-   top.push_back(toDraw);
-   for(i = 0; i < 26; i++){
-      tempBear = fmod(startBear+bStep*i, 360.0);
-      toDraw = locateDestination_2(lastAvg.x, lastAvg.y, errorRad[5], startBear+bStep*i);
-      toDraw = translateToScreen(toDraw.x, toDraw.y);  
-      top.push_back(toDraw);
-   }
-   toDraw = translateToScreen(endPoint2.x, endPoint2.y);
-   top.push_back(toDraw);
-
-   // Smooth error cone curve
-   std::vector<Vector4d*> nextSeg;
-   std::vector<Vector2d>::iterator _ec;
-   std::vector<Vector4d*>::iterator _ec2;
-
-   Vector2d q0, q1, q2;
-
-   buildECSmooth();
+   // Build the display for the NHC error cone in the user study
    buildTrueCone();
 
    delete(t1);
    delete(t2);
 }
 
-void advisory::buildErrorConeFull(){
-   // Radius of the error cone using 2010 values
-   double errorRad[] = {50.004, 100.471, 144.302, 187.515, 283.263, 390.463};
+void advisory::buildECSmooth(std::vector<Vector2d> & errorCone1, 
+                             std::vector<Vector2d> & errorCone2){
+   double h;
+   unsigned int i;
+   Vector2d p0, p1;
+
+   // First Side
+   for(i=0; i<errorCone1.size(); i++){
+      p0 = errorCone1[i];
+      p1 = errorCone1[i+1];
+
+      h = 0.0;
+      if(i==0){ h=9.0; }
+      else if(i==1 || i==2 || i==3){ h=12.0; }
+      else if(i==4){ h=24.0; }
+      
+      interpECSmooth(p0, p1, h, 0);
+   }
+
+   // Second Side
+   for(i=0; i<errorCone2.size(); i++){
+      p0 = errorCone2[i];
+      p1 = errorCone2[i+1];
+
+      h = 0.0;
+      if(i==0){ h=9.0; }
+      else if(i==1 || i==2 || i==3){ h=12.0; }
+      else if(i==4){ h=24.0; }
+      
+      interpECSmooth(p0, p1, h, 1);
+   }
+}
+
+// Interpolate between p0 and p1 to find additional points on the error cone
+void advisory::interpECSmooth(Vector2d p0, Vector2d p1, double h, int side){
+   double dist = haversine(p0.x, p1.x, p0.y, p1.y);
+   double speed = dist/h;
+   int segments = (int)(h/3.0);
+   double disPerSeg = dist/(double)segments;
+
+   Vector2d curPos = p0;
+   double tBear = findBearing_2(&curPos, &p1);
+
+   Vector4d * toAdd;
    int i;
 
-   // Avg path list
-   std::vector<Vector2d*>::iterator p1;
-   std::vector<Vector2d*>::iterator p2;
+   toAdd = new Vector4d(curPos.x, curPos.y, tBear, speed);
+   if(side==0){ ecSmooth1.push_back(toAdd); }
+   else{ ecSmooth2.push_back(toAdd); }
 
-   Vector2d endPoint1, endPoint2, lastAvg;
+   for(i=0; i < segments-1; i++){
+      curPos = locateDestination_2(curPos.x, curPos.y, disPerSeg, tBear);
+      tBear = findBearing_2(&curPos, &p1);
 
-   Vector2d toDraw, * t1,  * t2;
-   double tempBear, endBear;
-
-   // New std deviation using distance
-   t1 = new Vector2d();
-   t2 = new Vector2d();
-   i = 0;
-   p2 = projPathFull.begin()+1;
-
-   //cout << "projPath size: " << projPath.size() << "\n";
-   toDraw.set((*projPathFull.begin())->x, (*projPathFull.begin())->y);
-   errorCone1.push_back(toDraw);
-   toDraw = translateToScreen((*projPath.begin())->x, (*projPath.begin())->y);
-   stdDev1.push_back(toDraw);
-   for(p1 =projPathFull.begin(); p2 != projPathFull.end(); p1++){
-      t1->set((*p1)->x, (*p1)->y);
-      t2->set((*p2)->x, (*p2)->y);
-
-      tempBear = findBearing_2(t1, t2);
-      tempBear = tempBear - 90.0;
-      if(tempBear < 0.0){
-         tempBear = tempBear + 360;
-      }
-
-      toDraw = locateDestination_2(t2->x, t2->y, distWeightCone[i], tempBear);
-      errorCone1.push_back(toDraw);
-
-      p2++;
-      i++;
+      toAdd = new Vector4d(curPos.x, curPos.y, tBear, speed);
+      if(side == 0){ ecSmooth1.push_back(toAdd); }
+      else{ ecSmooth2.push_back(toAdd); } 
    }
 
-   i = 0;
-   p2 = projPathFull.begin()+1;
-   toDraw.set((*projPathFull.begin())->x, (*projPathFull.begin())->y);
-   errorCone2.push_back(toDraw);
-   for(p1 = projPathFull.begin(); p2 != projPathFull.end(); p1++){
-      t1->set((*p1)->x, (*p1)->y);
-      t2->set((*p2)->x, (*p2)->y);
-      tempBear = findBearing_2(t1, t2);
-      tempBear = fmod(tempBear + 90.0, 360.0);
-
-      toDraw = locateDestination_2(t2->x, t2->y, errorRad[i], tempBear);
-      errorCone2.push_back(toDraw);
-
-      if(p2 == projPathFull.end()-1){
-         endPoint2.set(toDraw.x, toDraw.y);
-         endBear = tempBear;
-      }
-
-      toDraw = translateToScreen(toDraw.x, toDraw.y);
-
-      p2++;
-      i++;
-   }
-
-   delete(t1);
-   delete(t2);
-}
-
-void advisory::findNewAvg(){
-   int k;
-   unsigned int i, j;
-   int count;
-   Vector2d * toPush, * toPushLatLon, * pushAvgSegVel;
-   std::vector<path*>::iterator _p;
-   numIn68 = (int)floor(pathList.size()*0.8);
-
-   if(numIn68 < 1){
-      numIn68 = 1;
-   }
-
-   adv = projPath[4];
-   adv2 = projPath[5];
-   sortInd = 22;
-   std::sort(pathList.begin(), pathList.end(), sp);
-
-   for(i = 0; i < newAvg.size(); i++){
-      delete(newAvg[i]);
-   }
-   for(i = 0; i < avgPathLatLon.size(); i++){
-      delete(avgPathLatLon[i]);
-   }
-   for(i = 0; i < avgSegVel.size(); i++){
-      delete(avgSegVel[i]);
-   }
-
-   newAvg.clear();
-   avgPathLatLon.clear();
-   avgSegVel.clear();
-   avgPath3.clear();
-   avgSegBearing.clear();
-   avgSegDist.clear();
-
-   closestToPre.clear();
-   _p = pathList.begin();
-   for(k = 0; k < numIn68; k++){
-      closestToPre.push_back((*_p));
-      _p++;
-   }
-
-   _p = closestToPre.begin();
-   while( newAvg.size() < (*_p)->posList.size()){
-      toPush = new Vector2d(0.0, 0.0);
-      newAvg.push_back(toPush);
-      toPushLatLon = new Vector2d(0.0, 0.0);
-      avgPathLatLon.push_back(toPushLatLon);
-   }
-
-   for (i = 0; i < closestToPre.size(); i++) {
-      for (j = 0; j != closestToPre[i]->posList.size(); j++) {
-         newAvg[j]->x = newAvg[j]->x + closestToPre[i]->posList[j]->x;
-         newAvg[j]->y = newAvg[j]->y + closestToPre[i]->posList[j]->y;
-         avgPathLatLon[j]->x = avgPathLatLon[j]->x + closestToPre[i]->latLonList[j]->x;
-         avgPathLatLon[j]->y = avgPathLatLon[j]->y + closestToPre[i]->latLonList[j]->y;
-      }
-   }
-
-   // Find average now
-   count = closestToPre.size();
-   for( i = 0; i < newAvg.size(); i++){
-      newAvg[i]->x =  newAvg[i]->x/(double)count;
-      newAvg[i]->y =  newAvg[i]->y/(double)count;
-      avgPathLatLon[i]->x = avgPathLatLon[i]->x/count;
-      avgPathLatLon[i]->y = avgPathLatLon[i]->y/count;
-   }
-
-
-   // Find average velocity for every segment
-   double tBearing, tDist, aDist;
-   Vector2d curLoc, tNewLoc;
-
-   for(i = 0; i < closestToPre[0]->posList.size()-1; i++){
-      tBearing = 0.0;
-      aDist = 0.0;
-      pushAvgSegVel = new Vector2d(0.0, 0.0);
-      for(j = 0; j < closestToPre.size(); j++){
-         tBearing = findBearing_2(closestToPre[j]->latLonList[i], closestToPre[j]->latLonList[i+1]);
-         tDist = haversine( closestToPre[j]->latLonList[i]->x, closestToPre[j]->latLonList[i+1]->x,
-                            closestToPre[j]->latLonList[i]->y, closestToPre[j]->latLonList[i+1]->y);
-         pushAvgSegVel->x = pushAvgSegVel->x + sin((tBearing*M_PI)/180.0)*tDist;
-         pushAvgSegVel->y = pushAvgSegVel->y + cos((tBearing*M_PI)/180.0)*tDist;
-         aDist += tDist;
-      }
-      pushAvgSegVel->set(*pushAvgSegVel/closestToPre.size());
-      aDist = aDist/closestToPre.size();
-      avgSegDist.push_back(aDist);
-      avgSegVel.push_back(pushAvgSegVel);
-      /*cout << "Avg Vel for Seg " << i << ": " << *pushAvgSegVel << "\n";
-      cout << "   Avg Bearing: " << aBearing << "\n";
-      cout << "   Avg Dist: " << aDist << "\n";*/
-   }
-
-   //avgPath.clear();
-   avgPathLatLon.clear();
-
-   //cout << "avgSegVel size: " << avgSegDist.size() << "\n";
-   toPushLatLon = new Vector2d(avgPathLatLon[0]->x, avgPathLatLon[0]->y);
-   avgPathLatLon.clear();
-   //cout << "   New avg pos for seg 0: " << *toPushLatLon << "\n";
-   avgPath3.push_back(toPushLatLon);
-   avgPathLatLon.push_back(toPushLatLon);
-   curLoc.set(avgPathLatLon[0]->x, avgPathLatLon[0]->y);
-   for(i = 0; i < avgSegDist.size(); i++){
-      toPushLatLon = new Vector2d;
-      tBearing = findDeg(avgSegVel[i]->normalize().x, avgSegVel[i]->normalize().y);
-      //cout << "bearing for seg " << i << ": " << tBearing << " from vel: " <<  avgSegVel[i]->normalize() << "   with dist: " << avgSegDist[i] << "\n";
-      tNewLoc = locateDestination_2(curLoc.x, curLoc.y, avgSegDist[i], tBearing);
-      toPushLatLon->set(tNewLoc.x, tNewLoc.y);
-      //cout << "   New avg pos for seg " << i+1 << ": " << *toPushLatLon << "\n";
-      avgPath3.push_back(toPushLatLon);
-      avgPathLatLon.push_back(toPushLatLon);
-      avgSegBearing.push_back(tBearing);
-      curLoc.set(tNewLoc.x, tNewLoc.y);
-   }
-
-   //cout << "New avg path size: " << avgPath3.size() << "\n";
-
-   // Now do the std deviation
-   newStdDeviationLine();
-}
-
-void advisory::newStdDeviationLine(){
-   unsigned int i, j;
-   int k;
-   std::vector<Vector2d*>::iterator pos;
-   std::vector<Vector2d*>::iterator devListIt;
-   std::vector<path*>::iterator _p;
-   int pct = (int)floor(pathList.size()*0.8);
-   Vector2d * curDev;
-   double distDev;
-
-   stdDevDist.clear();
-
-   if(pct < 1){
-      pct = 1;
-   }
-
-   closestToPreStdDev.clear();
-   _p = pathList.begin();
-   for(k = 0; k < pct; k++){
-      closestToPreStdDev.push_back((*_p));
-      _p++;
-   }
-
-   // Compute std deviation for one segment at a time
-   curDev = new Vector2d(0.0, 0.0);
-   for (j = 1; j != closestToPreStdDev[0]->posList.size(); j++) {
-      curDev->set(0.0, 0.0);
-      distDev = 0.0;
-      for (i = 0; i < closestToPreStdDev.size(); i++) {
-         curDev->x = curDev->x + Sqr(closestToPreStdDev[i]->posList[j]->x - newAvg[j]->x);
-         curDev->y = curDev->y + Sqr(closestToPreStdDev[i]->posList[j]->y - newAvg[j]->y);
-         distDev = distDev + Sqr(haversine(closestToPreStdDev[i]->latLonList[j]->x, avgPathLatLon[j]->x, closestToPreStdDev[i]->latLonList[j]->y, avgPathLatLon[j]->y));
-      }
-      curDev->x = sqrt((1.0/closestToPreStdDev.size())*curDev->x);
-      curDev->y = sqrt((1.0/closestToPreStdDev.size())*curDev->y);
-      distDev = sqrt((1.0/closestToPreStdDev.size())*distDev);
-      //cout << "distDev: " << distDev << "\n";
-      stdDevDist.push_back(1.5*distDev);
-   }
-   delete(curDev);
-}
-
-
-// -------------------------- Statistical Functions --------------------------//
-
-// Find the average line of the generated paths for each advisory
-void advisory::findAvgLine(){
-
-   std::vector<path*>::iterator pathIt;
-   int count = pathList.size();
-   int k;
-   unsigned int i, j;
-   std::vector<path*>::iterator _p;
-   std::vector<Vector2d*>::iterator pos1;
-   Vector2d * toPush;
-   Vector2d * toPushLatLon;
-   Vector2d * pushAvgSegVel;
-   numIn68 = (int)floor(pathList.size()*0.68);
-
-   if(numIn68 < 1){
-      numIn68 = 1;
-   }
-
-   adv = projPath[4];
-   adv2 = projPath[5];
-   std::sort(pathList.begin(), pathList.end(), sp);
-
-   for(i = 0; i < avgPath.size(); i++){
-      delete(avgPath[i]);
-   }
-   for(i = 0; i < avgPathLatLon.size(); i++){
-      delete(avgPathLatLon[i]);
-   }
-   for(i = 0; i < avgSegVel.size(); i++){
-      delete(avgSegVel[i]);
-   }
-
-   avgPath.clear();
-   avgPathLatLon.clear();
-   avgSegVel.clear();
-   avgPath3.clear();
-   avgSegBearing.clear();
-   avgSegDist.clear();
-   pathIt = pathList.begin();
-
-   closestToPre.clear();
-   _p = pathList.begin();
-   for(k = 0; k < numIn68; k++){
-      closestToPre.push_back((*_p));
-      _p++;
-   }
-
-   // Make sure that the avgPath has enough spots
-   while( avgPath.size() < (*pathIt)->posList.size()){
-      toPush = new Vector2d(0.0, 0.0);
-      avgPath.push_back(toPush);
-      toPushLatLon = new Vector2d(0.0, 0.0);
-      avgPathLatLon.push_back(toPushLatLon);
-   }
-
-   for (i = 0; i < pathList.size(); i++) {
-      for (j = 0; j != pathList[i]->posList.size(); j++) {
-         avgPath[j]->x = avgPath[j]->x + pathList[i]->posList[j]->x;
-         avgPath[j]->y = avgPath[j]->y + pathList[i]->posList[j]->y;
-         avgPathLatLon[j]->x = avgPathLatLon[j]->x + pathList[i]->latLonList[j]->x;
-         avgPathLatLon[j]->y = avgPathLatLon[j]->y + pathList[i]->latLonList[j]->y;
-      }
-   }
-
-   // Find average now
-   for( i = 0; i < avgPath.size(); i++){
-      avgPath[i]->x =  avgPath[i]->x/count;
-      avgPath[i]->y =  avgPath[i]->y/count;
-      //cout << "avg Path: " << avgPath[i]->x << ", " << avgPath[i]->y << " with count: " << count << "\n";
-      avgPathLatLon[i]->x = avgPathLatLon[i]->x/count;
-      avgPathLatLon[i]->y = avgPathLatLon[i]->y/count;
-   }
-
-   // Find average velocity for every segment
-   double tBearing, tDist, aDist;
-   Vector2d curLoc, tNewLoc;
-
-   for(i = 0; i < pathList[0]->posList.size()-1; i++){
-      tBearing = 0.0;
-      aDist = 0.0;
-      pushAvgSegVel = new Vector2d(0.0, 0.0);
-      for(j = 0; j < pathList.size(); j++){
-         tBearing = findBearing_2(pathList[j]->latLonList[i], pathList[j]->latLonList[i+1]);
-         tDist = haversine( pathList[j]->latLonList[i]->x, pathList[j]->latLonList[i+1]->x,
-                            pathList[j]->latLonList[i]->y, pathList[j]->latLonList[i+1]->y);
-         pushAvgSegVel->x = pushAvgSegVel->x + sin((tBearing*M_PI)/180.0)*tDist;
-         pushAvgSegVel->y = pushAvgSegVel->y + cos((tBearing*M_PI)/180.0)*tDist;
-         aDist += tDist;
-      }
-      pushAvgSegVel->set(*pushAvgSegVel/pathList.size());
-      aDist = aDist/pathList.size();
-      avgSegDist.push_back(aDist);
-      avgSegVel.push_back(pushAvgSegVel);
-   }
-
-   //avgPath.clear();
-   avgPathLatLon.clear();
-
-   //cout << "avgSegVel size: " << avgSegDist.size() << "\n";
-   toPushLatLon = new Vector2d(avgPathLatLon[0]->x, avgPathLatLon[0]->y);
-   avgPathLatLon.clear();
-   //cout << "   New avg pos for seg 0: " << *toPushLatLon << "\n";
-   avgPath3.push_back(toPushLatLon);
-   avgPathLatLon.push_back(toPushLatLon);
-   curLoc.set(avgPathLatLon[0]->x, avgPathLatLon[0]->y);
-   for(i = 0; i < avgSegDist.size(); i++){
-      toPushLatLon = new Vector2d;
-      tBearing = findDeg(avgSegVel[i]->normalize().x, avgSegVel[i]->normalize().y);
-      //cout << "bearing for seg " << i << ": " << tBearing << " from vel: " <<  avgSegVel[i]->normalize() << "   with dist: " << avgSegDist[i] << "\n";
-      tNewLoc = locateDestination_2(curLoc.x, curLoc.y, avgSegDist[i], tBearing);
-      toPushLatLon->set(tNewLoc.x, tNewLoc.y);
-      //cout << "   New avg pos for seg " << i+1 << ": " << *toPushLatLon << "\n";
-      avgPath3.push_back(toPushLatLon);
-      avgPathLatLon.push_back(toPushLatLon);
-      avgSegBearing.push_back(tBearing);
-      curLoc.set(tNewLoc.x, tNewLoc.y);
-   }
-
-   //cout << "New avg path size: " << avgPath3.size() << "\n";
-
-   // Now do the std deviation
-   stdDeviationLine();
-
-   // Rebuild avg to throw out outliers
-   avgPath2.clear();
-   avgPathLatLon2.clear();
-   pathIt = pathList.begin();
-   int c = 0;
-   int l;
-
-   // Make sure that the avgPath has enough spots
-   while( avgPath2.size() < (*pathIt)->posList.size()){
-      toPush = new Vector2d(0.0, 0.0);
-      avgPath2.push_back(toPush);
-      toPushLatLon = new Vector2d(0.0, 0.0);
-      avgPathLatLon2.push_back(toPushLatLon);
-   }
-
-   for (i = 0; i < pathList.size(); i++) {
-      l = stdDevDist.size()-1;
-      if(haversine(pathList[i]->latLonList[l]->x, projPath[5]->x, pathList[i]->latLonList[l]->y, projPath[5]->y) < stdDevDist[l]){
-         c++;
-         for (j = 0; j != pathList[i]->posList.size(); j++) {
-            avgPath2[j]->x = avgPath2[j]->x + pathList[i]->posList[j]->x;
-            avgPath2[j]->y = avgPath2[j]->y + pathList[i]->posList[j]->y;
-            //cout << "j: " << j << " with " << pathList[i]->posList[j]->x << " and " << pathList[i]->posList[j]->y << "\n";
-            avgPathLatLon2[j]->x = avgPathLatLon2[j]->x + pathList[i]->latLonList[j]->x;
-            avgPathLatLon2[j]->y = avgPathLatLon2[j]->y + pathList[i]->latLonList[j]->y;
-         }
-      }
-   }
-
-   // Find average now
-   for( i = 0; i < avgPath.size(); i++){
-      avgPath2[i]->x =  avgPath2[i]->x/c;
-      avgPath2[i]->y =  avgPath2[i]->y/c;
-      //cout << "avg Path: " << avgPath2[i]->x << ", " << avgPath2[i]->y << " with count: " << c << "\n";
-      avgPathLatLon2[i]->x = avgPathLatLon2[i]->x/c;
-      avgPathLatLon2[i]->y = avgPathLatLon2[i]->y/c;
+   if(h == 24){
+      toAdd = new Vector4d(p1.x, p1.y, tBear, speed);
+      if(side == 0){ ecSmooth1.push_back(toAdd); }
+      else{ ecSmooth2.push_back(toAdd); }
    }
 }
 
-void advisory::stdDeviationLine(){
+// Chris --- Ignore buildTrueCone() and buildTrueConeSide()
+void advisory::buildTrueCone(){
 
-   unsigned int i, j;
-   std::vector<Vector2d*>::iterator pos;
-   std::vector<Vector2d*>::iterator devListIt;
-   Vector2d * curDev;
-   double distDev;
+  buildTrueConeSide(0);
+  buildTrueConeSide(1);
 
-   stdDevDist.clear();
+  cout << "Finished building the true cone..." << endl;
+}
 
-   // Compute std deviation for one segment at a time
-   curDev = new Vector2d(0.0, 0.0);
-   for (j = 1; j != pathList[0]->posList.size(); j++) {
-      curDev->set(0.0, 0.0);
-      distDev = 0.0;
-      for (i = 0; i < pathList.size(); i++) {
-         curDev->x = curDev->x + Sqr(pathList[i]->posList[j]->x - avgPath[j]->x);
-         curDev->y = curDev->y + Sqr(pathList[i]->posList[j]->y - avgPath[j]->y);
-         distDev = distDev + Sqr(haversine(pathList[i]->latLonList[j]->x, avgPathLatLon[j]->x, pathList[i]->latLonList[j]->y, avgPathLatLon[j]->y));
-      }
-      curDev->x = sqrt((1.0/pathList.size())*curDev->x);
-      curDev->y = sqrt((1.0/pathList.size())*curDev->y);
-      distDev = sqrt((1.0/pathList.size())*distDev);
-      //cout << "distDev: " << distDev << "\n";
-      stdDevDist.push_back(sim->getSDA()*distDev);
-   }
-   delete(curDev);
+void advisory::buildTrueConeSide(int side){
+  // Radius of the error cone using 2010 values
+  double errorRad[] = {0.0, 50.004, 100.471, 144.302, 187.515, 283.263, 390.463};
 
+  Vector2d * push;
+  Vector2d p0, p1, pT;
+  double l, r, R, x, d, theta, phi1, phi2;
+  double bearing;
+
+  for(unsigned int i=0; i<projPath.size()-2; i++){
+    p0.set(projPath[i]->x, projPath[i]->y);
+    p1.set(projPath[i+1]->x, projPath[i+1]->y);
+
+    d = haversine(p0.x, p1.x, p0.y, p1.y);
+    r = errorRad[i];
+    R = errorRad[i+1];
+    x = (r*d)/(R-r);
+    l = sqrt((x+d)*(x+d) - R*R);
+    theta = (atan2(R, l)*180.0)/M_PI;
+    if(theta != theta){ theta = 0.0; }
+    phi1 = (theta+90.0);
+    phi2 = 180.0 - phi1;
+
+    if(side == 0){
+      bearing = findBearing_2(&p0, &p1);
+      phi1 = fmod(bearing + phi1, 360.0);
+      bearing = fmod(findBearing_2(&p1, &p0)+180.0, 360.0);
+      phi2 = fmod(bearing + phi2, 360.0);
+    }
+    else{
+      bearing = findBearing_2(&p0, &p1);
+      phi1 = bearing - phi1;
+      if(phi1 < 0.0){ phi1 += 360.0; }
+      bearing = fmod(findBearing_2(&p1, &p0)+180.0, 360.0);
+      phi2 = bearing - phi2;
+      if(phi2 < 0.0){ phi2 += 360.0; }
+    }
+
+    // Determine points and push to the error cone
+    if(side == 0){
+      pT = locateDestination_2(p0.x, p0.y, r, phi1); 
+      push = new Vector2d(pT.x, pT.y);
+      trueCone1.push_back(push);
+      pT = locateDestination_2(p1.x, p1.y, R, phi1); 
+      push = new Vector2d(pT.x, pT.y);
+      trueCone1.push_back(push);
+    }
+    else{
+      pT = locateDestination_2(p0.x, p0.y, r, phi1); 
+      push = new Vector2d(pT.x, pT.y);
+      trueCone2.push_back(push);
+      pT = locateDestination_2(p1.x, p1.y, R, phi1); 
+      push = new Vector2d(pT.x, pT.y);
+      trueCone2.push_back(push);
+    } 
+  }
 }
 
 // ----------------------------- Drawing Functions ---------------------------//
@@ -1162,51 +775,6 @@ int advisory::drawGenPathsTrail(int step){
   return step;
 }
 
-void advisory::drawGenPathsClosest(){
-   std::vector<Vector2d*>::iterator pos1;
-   std::vector<Vector2d*>::iterator pos2;
-   std::vector<path*>::iterator pathIt;
-   Vector2d draw1, draw2;
-   float lineWidth;
-   float tempTrans;
-
-   // Display generated paths
-   for (pathIt = closestToPre.begin(); pathIt != closestToPre.end(); pathIt++){
-      int test = 0;
-      pos2 = (*pathIt)->posList.begin() + 1;
-      lineWidth = 1.20;
-      glColor4f((*pathIt)->getInt().x, (*pathIt)->getInt().y,
-            (*pathIt)->getInt().z, (*pathIt)->getInt().w);
-      tempTrans = (*pathIt)->getInt().w*0.4;
-      //cout << "Path size: " << (*pathIt)->posList2.size() << endl;
-      for (pos1 = (*pathIt)->posList.begin(); pos2 != (*pathIt)->posList.end(); pos1++) {
-         //glColor4f((*pathIt)->getInt().x, (*pathIt)->getInt().y,
-         //      (*pathIt)->getInt().z, tempTrans);
-         if(test%2 == 0){
-            glColor4f(1.0, 0.2, 0.2, tempTrans);
-            //glColor4f(0.0, 0.0, 1.0, tempTrans);
-         }
-         else{
-            glColor4f(1.0, 0.2, 0.2, tempTrans);
-            //glColor4f(1.0, 0.0, 0.0, tempTrans);
-         }
-         glLineWidth(lineWidth * 1.0);
-         draw1.x = (*pos1)->x;
-         draw1.y = (*pos1)->y;
-         draw2.x = (*pos2)->x;
-         draw2.y = (*pos2)->y;
-         glBegin(GL_LINES);
-            glVertex3f(draw1.x, draw1.y, 0.0);
-            glVertex3f(draw2.x, draw2.y, 0.0);
-         glEnd();
-         pos2++;
-         test++;
-         //lineWidth = lineWidth + 0.5;
-         //tempTrans = tempTrans - 0.025;
-      }
-   }
-}
-
 void advisory::drawHeatMap(){
    std::vector<Vector2d*>::iterator pos1;
    std::vector<Vector2d*>::iterator pos2;
@@ -1218,7 +786,6 @@ void advisory::drawHeatMap(){
 
    for (pathIt = pathList.begin(); pathIt != pathList.end(); pathIt++) {
       int test = 0;
-      //cout << "Path size: " << (*pathIt)->posList.size() << "\n";
       pos2 = (*pathIt)->posList.begin() + 1;
       lineWidth = 1.0;
       glColor4f(1.0, 1.0, 1.0, 0.01);
@@ -1229,7 +796,6 @@ void advisory::drawHeatMap(){
          draw1.y = (*pos1)->y;
          draw2.x = (*pos2)->x;
          draw2.y = (*pos2)->y;
-         //cout << "Line : " << draw1 << " to " << draw2 << "\n";
          glBegin(GL_LINES);
          glVertex3f(draw1.x, draw1.y, 0.0);
          glVertex3f(draw2.x, draw2.y, 0.0);
@@ -1238,51 +804,6 @@ void advisory::drawHeatMap(){
          test++;
       }
    }
-}
-
-// Draw the average path of the generated paths for each advisory in the simulation
-void advisory::drawAvgPath(){
-   std::vector<Vector2d*>::iterator p1;
-   std::vector<Vector2d*>::iterator p2;
-   Vector2d toDraw1, toDraw2;
-
-   glColor4f(0.0, 1.0, 0.0, 1.0);
-   glLineWidth(2.5);
-
-   p2 = avgPathLatLon.begin()+1;
-   for(p1 =avgPathLatLon.begin(); p2 != avgPathLatLon.end(); p1++){
-      glBegin(GL_LINES);
-         toDraw1 = translateToScreen((*p1)->x, (*p1)->y);
-         toDraw2 = translateToScreen((*p2)->x, (*p2)->y);
-         glVertex3f(toDraw1.x, toDraw1.y, 0.0);
-         glVertex3f(toDraw2.x, toDraw2.y, 0.0);
-      glEnd();
-      p2++;
-   }
-
-   glColor4f(1.0, 0.0, 1.0, 1.0);
-   double a, b;
-   a = 1.0;
-   b = 0.0;
-   p2 = avgPath3.begin()+1;
-    for(p1 = avgPath3.begin(); p2 != avgPath3.end(); p1++){
-       glColor4f(a, 0.0, b, 1.0);
-       glBegin(GL_LINES);
-          toDraw1 = translateToScreen((*p1)->x, (*p1)->y);
-          toDraw2 = translateToScreen((*p2)->x, (*p2)->y);
-          glVertex3f(toDraw1.x, toDraw1.y, 0.0);
-          glVertex3f(toDraw2.x, toDraw2.y, 0.0);
-       glEnd();
-       p2++;
-       if(a == 1.0){
-          a = 0.0;
-          b = 1.0;
-       }
-       else{
-          a = 1.0;
-          b = 0.0;
-       }
-    }
 }
 
 // Draw the projected path for each advisory in the simulation
@@ -1309,85 +830,11 @@ void advisory::drawForecastPath() {
    //drawErrorCone();
 }
 
-// Draw the error cones of a projected path
-void advisory::drawErrorCone(){
-   Vector2d draw1, draw2;
-   std::vector<Vector2d>::iterator pos1;
-   std::vector<Vector2d>::iterator pos2;
-   std::vector<Vector4d*>::iterator pos1_4d;
-   std::vector<Vector4d*>::iterator pos2_4d;
-
-   glColor4f(1.0, 0.0, 0.0, 0.5);
-   glLineWidth(1.5);
-
-   // Draw First Side
-   pos2 = stdDev1.begin() + 1;
-   for (pos1 = stdDev1.begin(); pos2 != stdDev1.end(); pos1++) {
-      draw1 = (*pos1);
-      draw2 = (*pos2);
-      glBegin(GL_LINES);
-      glVertex3f(draw1.x, draw1.y, 0.0);
-      glVertex3f(draw2.x, draw2.y, 0.0);
-      glEnd();
-      pos2++;
-   }
-
-   // Draw Second Side
-   pos2 = stdDev2.begin() + 1;
-   for (pos1 = stdDev2.begin(); pos2 != stdDev2.end(); pos1++) {
-      draw1 = (*pos1);
-      draw2 = (*pos2);
-      glBegin(GL_LINES);
-      glVertex3f(draw1.x, draw1.y, 0.0);
-      glVertex3f(draw2.x, draw2.y, 0.0);
-      glEnd();
-      pos2++;
-   }
-
-   // Draw Connecting Lines
-   pos2 = stdDev2.begin();
-   for (pos1 = stdDev1.begin(); pos1 != stdDev1.end(); pos1++) {
-      if(pos1 != stdDev1.end()-2){
-         draw1 = (*pos1);
-         draw2 = (*pos2);
-         glBegin(GL_LINES);
-         glVertex3f(draw1.x, draw1.y, 0.0);
-         glVertex3f(draw2.x, draw2.y, 0.0);
-         glEnd();
-      }
-      pos2++;
-   }
-
-   // Draw the rounded top
-   pos2 = top.begin()+1;
-   for(pos1 = top.begin(); pos1 != top.end()-1; pos1++){
-      draw1 = (*pos1);
-      draw2 = (*pos2);
-      glBegin(GL_LINES);
-      glVertex3f(draw1.x, draw1.y, 0.0);
-      glVertex3f(draw2.x, draw2.y, 0.0);
-      glEnd();
-      pos2++;
-   }
-
-   // Draw the smoothed side
-   glColor4f(0.0, 0.0, 1.0, 0.5);
-   pos2_4d = ecSmooth1.begin()+1;
-   for(pos1_4d = ecSmooth1.begin(); pos2_4d != ecSmooth1.end(); pos1_4d++){
-      draw1 = translateToScreen((*pos1_4d)->x, (*pos1_4d)->y);
-      draw2 = translateToScreen((*pos2_4d)->x, (*pos2_4d)->y);
-      glBegin(GL_LINES);
-      glVertex3f(draw1.x, draw1.y, 0.0);
-      glVertex3f(draw2.x, draw2.y, 0.0);
-      glEnd();
-      pos2_4d++;
-   }
-}
-
 void advisory::drawErrorSmooth(){
    Vector2d draw1, draw2;
    std::vector<Vector4d*>::iterator pos1_4d;
    std::vector<Vector4d*>::iterator pos2_4d;
+
 
    // Draw the smoothed side
    glColor4f(0.0, 1.0, 0.0, 0.5);
@@ -1432,165 +879,6 @@ void advisory::drawErrorConeRadius(){
     }
     glEnd();
   }
-}
-
-void advisory::drawStdDevPath(){
-   // Avg path list
-   std::vector<Vector2d*>::iterator p1;
-   std::vector<Vector2d*>::iterator p2;
-   // Std deviation list
-   std::vector<double>::iterator d1;
-
-   Vector2d toDraw1, toDrawPrev1, toDraw2, toDrawPrev2, t1, t2;
-   double tempBear;
-   int i = 0;
-
-   glColor4f(0.0, 1.0, 0.0, 1.0);
-   glLineWidth(2.5);
-
-   // New std deviation using distance
-   d1 = stdDevDist.begin();
-   p2 = avgPathLatLon.begin()+1;
-
-   toDrawPrev1 = translateToScreen( (*avgPathLatLon.begin())->x, (*avgPathLatLon.begin())->y);
-   toDrawPrev2 = toDrawPrev1;
-   for(p1 = avgPathLatLon.begin(); p2 != avgPathLatLon.end(); p1++){
-      if(i == 0 || i == 2 || i == 6 || i == 10 || i == 14 || i == 22){
-         tempBear = findBearing_2((*p1), (*p2));
-         tempBear = tempBear - 90.0;
-         if(tempBear < 0.0){
-            tempBear = tempBear + 360;
-         }
-
-         toDraw1 = locateDestination_2((*p2)->x, (*p2)->y, (*d1), tempBear);
-         toDraw1 = translateToScreen(toDraw1.x, toDraw1.y);
-
-         glBegin(GL_LINES);
-            glVertex3f(toDrawPrev1.x, toDrawPrev1.y, 0.0);
-            glVertex3f(toDraw1.x, toDraw1.y, 0.0);
-         glEnd();
-
-         tempBear = findBearing_2((*p1), (*p2));
-         tempBear = fmod(tempBear + 90.0, 360);
-
-         toDraw2 = locateDestination_2((*p2)->x, (*p2)->y, (*d1), tempBear);
-         toDraw2 = translateToScreen(toDraw2.x, toDraw2.y);
-
-         glBegin(GL_LINES);
-            glVertex3f(toDrawPrev2.x, toDrawPrev2.y, 0.0);
-            glVertex3f(toDraw2.x, toDraw2.y, 0.0);
-         glEnd();
-
-         if(i != 0){
-            glBegin(GL_LINES);
-               glVertex3f(toDraw1.x, toDraw1.y, 0.0);
-               glVertex3f(toDraw2.x, toDraw2.y, 0.0);
-            glEnd();
-         }
-
-         toDrawPrev1 = toDraw1;
-         toDrawPrev2 = toDraw2;
-      }
-      i++;
-      d1++;
-      p2++;
-   }
-}
-
-void advisory::drawStdDevPathRev(){
-   // Avg path list
-   std::vector<Vector2d*>::iterator p1;
-   std::vector<Vector2d*>::iterator p2;
-   // Std deviation list
-   std::vector<double>::iterator d1;
-
-   Vector2d toDraw1, toDrawPrev1, toDraw2, toDrawPrev2, t1, t2;
-   double tempBear;
-   int i = 0;
-
-   glColor4f(0.0, 1.0, 1.0, 1.0);
-   glLineWidth(2.5);
-
-   // New std deviation using distance
-   d1 = stdDevDistRev.begin();
-   p2 = avgPathLatLon.begin()+1;
-
-   toDrawPrev1 = translateToScreen( (*avgPathLatLon.begin())->x, (*avgPathLatLon.begin())->y);
-   toDrawPrev2 = toDrawPrev1;
-   for(p1 = avgPathLatLon.begin(); p2 != avgPathLatLon.end(); p1++){
-      if(i == 0 || i == 2 || i == 6 || i == 10 || i == 14 || i == 22){
-         tempBear = findBearing_2((*p1), (*p2));
-         tempBear = tempBear - 90.0;
-         if(tempBear < 0.0){
-            tempBear = tempBear + 360;
-         }
-
-         toDraw1 = locateDestination_2((*p2)->x, (*p2)->y, (*d1), tempBear);
-         toDraw1 = translateToScreen(toDraw1.x, toDraw1.y);
-
-         glBegin(GL_LINES);
-            glVertex3f(toDrawPrev1.x, toDrawPrev1.y, 0.0);
-            glVertex3f(toDraw1.x, toDraw1.y, 0.0);
-         glEnd();
-
-         tempBear = findBearing_2((*p1), (*p2));
-         tempBear = fmod(tempBear + 90.0, 360);
-
-         toDraw2 = locateDestination_2((*p2)->x, (*p2)->y, (*d1), tempBear);
-         toDraw2 = translateToScreen(toDraw2.x, toDraw2.y);
-
-         glBegin(GL_LINES);
-            glVertex3f(toDrawPrev2.x, toDrawPrev2.y, 0.0);
-            glVertex3f(toDraw2.x, toDraw2.y, 0.0);
-         glEnd();
-
-         if(i != 0){
-            glBegin(GL_LINES);
-               glVertex3f(toDraw1.x, toDraw1.y, 0.0);
-               glVertex3f(toDraw2.x, toDraw2.y, 0.0);
-            glEnd();
-         }
-
-         toDrawPrev1 = toDraw1;
-         toDrawPrev2 = toDraw2;
-      }
-      i++;
-      d1++;
-      p2++;
-   }
-}
-
-void advisory::drawNewAvg(){
-   std::vector<Vector2d*>::iterator pos1;
-   std::vector<Vector2d*>::iterator pos2;
-   Vector2d draw1, draw2;
-   float lineWidth;
-   float tempTrans;
-
-   // Display generated paths
-   
-      int test = 0;
-      pos2 = newAvg.begin() + 1;
-      lineWidth = 1.5;
-      tempTrans = 1.0; 
-      cout << "Path size: " << newAvg.size() << endl;
-      for (pos1 = newAvg.begin(); pos2 != newAvg.end(); pos1++) {
-         glColor4f(0.0, 0.0, 0.0, tempTrans);
-         glLineWidth(lineWidth * 1.0);
-         //draw1 = translateToScreen((*pos1)->x, (*pos1)->y);
-         //draw2 = translateToScreen((*pos1)->x, (*pos1)->y);
-         draw1.x = (*pos1)->x;
-         draw1.y = (*pos1)->y;
-         draw2.x = (*pos2)->x;
-         draw2.y = (*pos2)->y;
-         cout << "drawing: " << draw1 << " to " << draw2 << endl;
-         glBegin(GL_LINES);
-            glVertex3f(draw1.x, draw1.y, 0.0);
-            glVertex3f(draw2.x, draw2.y, 0.0);
-         glEnd();
-         pos2++;
-         test++;
-   }
 }
 
 void advisory::drawChips(){
@@ -1686,109 +974,6 @@ void advisory::sortPath(int seg){
    std::sort(pathList.begin(), pathList.end(), sp);
 }
 
-void advisory::buildECSmooth(){
-   double h;
-   unsigned int i;
-   Vector2d p0, p1;
-
-   // First Side
-   for(i=0; i<errorCone1.size(); i++){
-      p0 = errorCone1[i];
-      p1 = errorCone1[i+1];
-
-      h = 0.0;
-      if(i==0){ h=9.0; }
-      else if(i==1 || i==2 || i==3){ h=12.0; }
-      else if(i==4){ h=24.0; }
-      
-      interpECSmooth(p0, p1, h, 0);
-   }
-
-   // Second Side
-   for(i=0; i<errorCone2.size(); i++){
-      p0 = errorCone2[i];
-      p1 = errorCone2[i+1];
-
-      h = 0.0;
-      if(i==0){ h=9.0; }
-      else if(i==1 || i==2 || i==3){ h=12.0; }
-      else if(i==4){ h=24.0; }
-      
-      interpECSmooth(p0, p1, h, 1);
-   }
-
-}
-
-void advisory::buildTrueCone(){
-
-  buildTrueConeSide(0);
-  buildTrueConeSide(1);
-
-  cout << "Finished building the true cone..." << endl;
-}
-
-void advisory::buildTrueConeSide(int side){
-  // Radius of the error cone using 2010 values
-  //double errorRad[] = {0.0, 50.004, 100.471, 144.302, 187.515, 390.463};
-  double errorRad[] = {0.0, 50.004, 100.471, 144.302, 187.515, 283.263, 390.463};
-
-  Vector2d * push;
-  Vector2d p0, p1, pT;
-  double l, r, R, x, d, theta, phi1, phi2;
-  double bearing;
-
-  for(unsigned int i=0; i<projPath.size()-2; i++){
-    p0.set(projPath[i]->x, projPath[i]->y);
-    p1.set(projPath[i+1]->x, projPath[i+1]->y);
-
-    d = haversine(p0.x, p1.x, p0.y, p1.y);
-    r = errorRad[i];
-    R = errorRad[i+1];
-    x = (r*d)/(R-r);
-    l = sqrt((x+d)*(x+d) - R*R);
-    theta = (atan2(R, l)*180.0)/M_PI;
-    if(theta != theta){ theta = 0.0; }
-    phi1 = (theta+90.0);
-    phi2 = 180.0 - phi1;
-
-    if(side == 0){
-      bearing = findBearing_2(&p0, &p1);
-      phi1 = fmod(bearing + phi1, 360.0);
-      bearing = fmod(findBearing_2(&p1, &p0)+180.0, 360.0);
-      phi2 = fmod(bearing + phi2, 360.0);
-    }
-    else{
-      bearing = findBearing_2(&p0, &p1);
-      phi1 = bearing - phi1;
-      if(phi1 < 0.0){ phi1 += 360.0; }
-      bearing = fmod(findBearing_2(&p1, &p0)+180.0, 360.0);
-      phi2 = bearing - phi2;
-      if(phi2 < 0.0){ phi2 += 360.0; }
-    }
-
-    // Determine points and push to the error cone
-    if(side == 0){
-      pT = locateDestination_2(p0.x, p0.y, r, phi1); 
-      push = new Vector2d(pT.x, pT.y);
-      trueCone1.push_back(push);
-      pT = locateDestination_2(p1.x, p1.y, R, phi1); 
-      push = new Vector2d(pT.x, pT.y);
-      trueCone1.push_back(push);
-    }
-    else{
-      pT = locateDestination_2(p0.x, p0.y, r, phi1); 
-      push = new Vector2d(pT.x, pT.y);
-      trueCone2.push_back(push);
-      pT = locateDestination_2(p1.x, p1.y, R, phi1); 
-      push = new Vector2d(pT.x, pT.y);
-      trueCone2.push_back(push);
-    } 
-  }
-
-  
-
-}
-
 void advisory::drawTrueCone(){
   Vector2d draw1, draw2, draw3, draw4;
   std::vector<Vector2d*>::iterator _p1;
@@ -1825,7 +1010,6 @@ void advisory::drawTrueCone(){
   
   // Draw the circles
   glColor4f(0.5, 0.5, 1.0, 0.5); 
-  //double errorRad[] = {50.004, 100.471, 144.302, 187.515, 390.463};
   double errorRad[] = {0.0, 50.004, 100.471, 144.302, 187.515, 283.263, 390.463};
   double curDeg = 0;
   for(unsigned int i = 1; i < projPath.size()-1; i++){
@@ -1843,39 +1027,6 @@ void advisory::drawTrueCone(){
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glDisable(GL_COLOR_LOGIC_OP);
 }
-
-void advisory::interpECSmooth(Vector2d p0, Vector2d p1, double h, int side){
-   double dist = haversine(p0.x, p1.x, p0.y, p1.y);
-   double speed = dist/h;
-   int segments = (int)(h/3.0);
-   double disPerSeg = dist/(double)segments;
-
-   Vector2d curPos = p0;
-   double tBear = findBearing_2(&curPos, &p1);
-
-   Vector4d * toAdd;
-   int i;
-
-   toAdd = new Vector4d(curPos.x, curPos.y, tBear, speed);
-   if(side==0){ ecSmooth1.push_back(toAdd); }
-   else{ ecSmooth2.push_back(toAdd); }
-
-   for(i=0; i < segments-1; i++){
-      curPos = locateDestination_2(curPos.x, curPos.y, disPerSeg, tBear);
-      tBear = findBearing_2(&curPos, &p1);
-
-      toAdd = new Vector4d(curPos.x, curPos.y, tBear, speed);
-      if(side == 0){ ecSmooth1.push_back(toAdd); }
-      else{ ecSmooth2.push_back(toAdd); } 
-   }
-
-   if(h == 24){
-      toAdd = new Vector4d(p1.x, p1.y, tBear, speed);
-      if(side == 0){ ecSmooth1.push_back(toAdd); }
-      else{ ecSmooth2.push_back(toAdd); }
-   }
-}
-
 
 void advisory::selectChip(Vector2d p){
   std::vector<chip*>::iterator _i;
