@@ -21,9 +21,11 @@
 #include "P6Image.h"
 #include "simulation.h"
 #include "Matrix.h"
+#include "ui.h"
 
 
 extern simulation * sim;
+extern ui * userInt;
 
 // Map texture
 extern GLuint textures[1];
@@ -58,6 +60,8 @@ extern double bearRatio;
 // For random number generation
 extern unsigned int counter;
 
+const string outputFile("testResults.txt");
+
 mapWin::mapWin(QWidget * parent): QGLWidget(parent){
    timer = new QTimer(this);
    connect(timer, SIGNAL(timeout()), SLOT(update()));
@@ -78,8 +82,9 @@ mapWin::mapWin(QWidget * parent): QGLWidget(parent){
    butTextPos.set(sim->getW()-102, sim->getH()-45);
    buttonPressed = 0;
    completed = 0;
-
    step = 0;
+
+   printStartExp();
 }
 
 mapWin::~mapWin(){
@@ -196,7 +201,6 @@ void mapWin::paintGL(){
    }
 
    // In interactive mode
-
    glDisable(GL_TEXTURE_2D);
    glEnable(GL_BLEND);
    glEnable(GL_LINE_SMOOTH);
@@ -223,16 +227,16 @@ void mapWin::paintGL(){
       drawCurPath();
    }
 
-   //sim->drawChips();
-   //sim->drawTargetArea();
-   //sim->drawSectors(this);
-   sim->drawSlider();
+   userInt->drawChips();
+   userInt->drawTargetArea(this);
+   userInt->drawSectors(this);
+   userInt->drawSlider();
    drawNext();
 
    glDisable(GL_BLEND);
    glDisable(GL_LINE_SMOOTH);
 
-   //sim->drawChipText(this);
+   userInt->drawChipText(this);
 }
 
 void mapWin::drawNext(){
@@ -340,8 +344,8 @@ void mapWin::mouseMoveEvent(QMouseEvent * e){
 
    dif.set(e->x()-initPress.x, e->y()-initPress.y);
    pos.set(e->x(), e->y());
-   sim->moveChip(dif);
-   sim->moveSlider(pos);
+   userInt->moveChip(dif);
+   userInt->moveSlider(pos);
 
    initPress.set(e->x(), e->y());
 
@@ -354,8 +358,8 @@ void mapWin::mousePressEvent(QMouseEvent * e){
    e->accept();
 
    p.set(e->x(), e->y());
-   sim->selectChip(p);
-   sim->checkSliderPressed(p);
+   userInt->selectChip(p);
+   userInt->checkSliderPressed(p);
 
    initPress.set(e->x(), e->y());
 
@@ -367,8 +371,8 @@ void mapWin::mousePressEvent(QMouseEvent * e){
 void mapWin::mouseReleaseEvent(QMouseEvent * e){
    e->accept();
 
-   sim->releaseChip();
-   //sim->printSectors();
+   userInt->releaseChip();
+   //userInt->printSectors();
 
    checkButtonRelease(e->x(), e->y());
 
@@ -501,6 +505,7 @@ void mapWin::keyPressEvent(QKeyEvent * k){
    if (k->text().toStdString() == "c" || k->text().toStdString() == "C"){
       sim->incCurAdv(1);
       cout << "Current advisory: " << sim->getCurrentAdv() << endl;
+      userInt->reset();
    }
    if (k->text().toStdString() == "v" || k->text().toStdString() == "V"){
       for(advIt = sim->advList.begin(); advIt != sim->advList.end(); advIt++){
@@ -595,16 +600,17 @@ void mapWin::checkButtonPress(double x, double y){
 void mapWin::checkButtonRelease(double x, double y){
    if(x < butMaxBord.x && x > butMinBord.x){
       if(y < butMaxBord.y && y > butMinBord.y){
-         if(sim->chipsPlaced() == 1){
-            //printResults();
+         if(userInt->chipsPlaced() == 1){
+            printResults();
             sim->incCurAdv(1);
+            userInt->reset();
             completed++;
          }
       }
    }
    cout << "completed: " << completed << "     advList: " << sim->advList.size() << endl;
    if(completed == (int)(sim->advList.size())){
-     printResults();
+     printStopExp();
    }
    buttonPressed = 0;
 }
@@ -612,44 +618,44 @@ void mapWin::checkButtonRelease(double x, double y){
 
 // File format is as follows:
 /* #EXP_START
-    Hurricane Number
      0 if paths | 1 if error cone
      # of advisory (which hurricane)
      sector , value
      ...
    #EXP_STOP
 */
+void mapWin::printStartExp(){
+   fstream file;
+   std::vector<advisory*>::iterator _a;
+
+   file.open(outputFile.c_str(), fstream::out | fstream::ate | fstream::app);
+   file << "#EXP_START" << endl;
+   file.close();
+}
+
 void mapWin::printResults(){
    fstream file;
    std::vector<advisory*>::iterator _a;
-   unsigned int i, j;
+   unsigned int i;
    unsigned int numSectors = 8;
 
-   file.open("results.txt", fstream::out | fstream::ate | fstream::app);
-
-   file << "#EXP_START" << endl;
-
-   sim->setCurAdv(0);
-   for(i = 0; i < sim->advList.size(); i++){
-      file << "  " << i << endl;
-      if(sim->getCurrentAdv() < (int)(sim->advList.size()/2)){
-         file << "    0  // PATHS" << endl;
-      }
-      else{
-         file << "    1 // ERROR CONE" << endl;
-      }
-
-      file << "    " << sim->getCurrentAdv() << endl;
-
-      for(j = 0; j < numSectors; j++){
-         file << "    " << j << " , " << sim->adv->sectorValue(j) << endl;
-      }
-      sim->incCurAdv(1);
+   file.open(outputFile.c_str(), fstream::out | fstream::ate | fstream::app);
+   if(sim->getCurrentAdv() < (int)(sim->advList.size()/2)){
+      file << "    0  // PATHS" << endl;
+   }
+   else{
+      file << "    1 // ERROR CONE" << endl;
    }
 
+   file << "    " << sim->getCurrentAdv() << endl;
+   for(i = 0; i < numSectors; i++){
+      file << "    " << i << " , " << userInt->sectorValue(i) << endl;
+   }
    file << "#EXP_STOP" << endl;
    file << endl;
-
    file.close();
+}
+
+void mapWin::printStopExp(){
    exit(0);
 }

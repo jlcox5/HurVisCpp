@@ -51,8 +51,9 @@ class mapWin : public QGLWidget{
       void checkSliderPress(double x, double y);
 
       // Write out results
+      void printStartExp();
       void printResults();
-
+      void printStopExp();
 };
 
 #endif

@@ -16,10 +16,7 @@
 #include "path.h"
 #include "geoFunct.h"
 #include "predictedPath.h"
-#include "chip.h"
-#include "sector.h"
 #include "hurEyePoints.h"
-#include "slider.h"
 
 bool sortPath(path * p1, path * p2);
 
@@ -38,23 +35,12 @@ class advisory{
       int numIn68;
       int onRight, onLeft;
 
-      // Used for user interaction
-      std::vector<chip*> chips;
-      std::vector<Vector2d*> sectorEnds;
-      std::vector<Vector2d*> targetArea;
-      std::vector<double> thetaList;
-      std::vector<double> chipThetaList;
-      std::vector<double> chipDistList;
-      std::vector<std::vector<int>*> sectorFull;
-      std::vector<sector*> sectorList;
-      Slider slider;
-      double rad;
-
       double inConePercent;
       double usePredictedPercent;
       double baseConePercent;
 
       double percBubDrawn;
+
 
    public:
       // List of projected paths
@@ -104,10 +90,6 @@ class advisory{
       void drawForecastPath();
       void drawErrorSmooth();
       void drawErrorConeRadius();
-      void drawChips();
-      void drawChipText(QGLWidget * g);
-      void drawChipBox();
-      void drawSlider();
 
       // Current point on path information
       int getPresLat(){ return presLat; }
@@ -123,24 +105,6 @@ class advisory{
       // Interpolations for error cone
       void buildECSmooth(std::vector<Vector2d> &, std::vector<Vector2d> &);
       void interpECSmooth(Vector2d p0, Vector2d p1, double h, int side);
-
-      // Handling the chips
-      void selectChip(Vector2d p);
-      void releaseChip();
-      void moveChip(Vector2d v);
-      int chipsPlaced();
-      void checkSliderPressed(Vector2d p);
-      void moveSlider(Vector2d v);
-
-      // Build the sectors for user interaction
-      void buildTargetArea();
-      void buildSectors();
-      void drawTargetArea(QGLWidget *);
-      void drawSectors(QGLWidget *);
-      void printSectors();
-
-      // Determines lock positions of chips once inside a sector
-      void detChipLockPos();
 
       // Returns the value at the specified sector
       int sectorValue(int i);

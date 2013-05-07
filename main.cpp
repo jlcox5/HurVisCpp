@@ -19,6 +19,7 @@
 #include "simulation.h"
 #include "gridStruct.h"
 #include "window.h"
+#include "ui.h"
 
 #include <QApplication>
 #include <QGLFormat>
@@ -30,6 +31,7 @@ path * testPath2;
 path * curPath;
 
 simulation * sim;
+ui * userInt;
 
 // Distance of projected path
 double projPathDist = 0.0;
@@ -91,6 +93,9 @@ int main( int argc, char *argv[] ){
    buildAdvisory();
    buildAdvisory();
    sim->buildExp();
+
+   // Build ui
+   userInt = new ui();
 
    dataGrid = new gridStruct(17, 26, 60, 17, 33, -75, -100, string("resHistCur.txt")); 
 

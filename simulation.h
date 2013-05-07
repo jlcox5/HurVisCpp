@@ -100,23 +100,9 @@ class simulation{
       void drawDataPoints();
       void drawDataPaths();
       int drawGenPathsTrail(int);
-      void drawChips();
-      void drawChipText(QGLWidget *);
-      void drawTargetArea(QGLWidget *);
-      void drawSectors(QGLWidget *);
-      void drawSlider();
-      void moveSlider(Vector2d v);
-
-      // Handling the chips
-      void selectChip(Vector2d p);
-      void releaseChip();
-      void moveChip(Vector2d v);
-      int chipsPlaced();
-      void checkSliderPressed(Vector2d p);
 
       // Print functions
       void printBearBin();
-      void printSectors();
 
       void buildExp();
       int getCurrentAdv(){ return advCombList[curHur]; }

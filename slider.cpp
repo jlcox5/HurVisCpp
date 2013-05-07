@@ -98,3 +98,11 @@ void Slider::moveSlider(Vector2d p){
     curPos.x = min(barPos.x+curTick*tickSpacing, barPos.x+barLenX);
   }
 }
+
+void Slider::reset(){
+  curPos.set(225,717);
+  barPos.set(225,725);
+  dX = 0;
+  curTick = 0;
+  sliderPressed = false;
+}

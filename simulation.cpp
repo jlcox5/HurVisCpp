@@ -74,29 +74,6 @@ void simulation::drawForecastPath(){
    adv->drawErrorSmooth();
 }
 
-// Draw the chips for each advisory
-void simulation::drawChips(){
-   adv->drawChipBox();
-   adv->drawChips();
-}
-
-// Draw the chips for each advisory
-void simulation::drawChipText(QGLWidget * g){
-   adv->drawChipText(g);
-}
-
-void simulation::drawTargetArea(QGLWidget * g){
-   adv->drawTargetArea(g);
-}
-
-void simulation::drawSectors(QGLWidget * g){
-   adv->drawSectors(g);
-}
-
-void simulation::drawSlider(){
-   adv->drawSlider();
-}
-
 // Draw all of the data points from historical data
 void simulation::drawDataPoints(){
    std::vector<posPoint*>::iterator posListIt;
@@ -168,35 +145,6 @@ void simulation::drawDataPaths(){
          }
       }
    }
-}
-
-// Handling chips
-void simulation::selectChip(Vector2d p){
-   adv->selectChip(p);
-}
-
-void simulation::releaseChip(){
-   adv->releaseChip();
-}
-
-void simulation::moveChip(Vector2d v){
-   adv->moveChip(v);
-}
-
-int simulation::chipsPlaced(){
-   return adv->chipsPlaced();
-}
-
-void simulation::checkSliderPressed(Vector2d p){
-   adv->checkSliderPressed(p);
-}
-
-void simulation::moveSlider(Vector2d v){
-   adv->moveSlider(v);
-}
-
-void simulation::printSectors(){
-   adv->printSectors();
 }
 
 // Prints the contents of the bearing bin structure

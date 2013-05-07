@@ -159,6 +159,14 @@ void sector::removeChip(int drop){
   }
 }
 
+void sector::reset(){
+  chipValues.clear();
+
+  for(unsigned int i = 0; i < drawEnd.size(); i++){
+    drawEnd[i] = false;
+  }
+}
+
 int sector::findChip(Vector2d & p){
   double dist;
   int chipCount = 0;

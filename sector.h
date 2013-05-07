@@ -21,6 +21,7 @@ class sector{
 
     void addChip(int);
     void removeChip(int);
+    void reset();
     void drawSectors(QGLWidget * );
     void drawValueText(QGLWidget *);
 

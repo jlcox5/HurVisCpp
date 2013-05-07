@@ -23,6 +23,7 @@ class Slider{
    void moveSlider(Vector2d);
 
    int getCurTick(){ return curTick; }
+   void reset();
 
   private:
     Vector2d curPos;
