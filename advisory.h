@@ -106,9 +106,6 @@ class advisory{
       void buildECSmooth(std::vector<Vector2d> &, std::vector<Vector2d> &);
       void interpECSmooth(Vector2d p0, Vector2d p1, double h, int side);
 
-      // Returns the value at the specified sector
-      int sectorValue(int i);
-
       // Build and draw the NHC Error Cone
       void buildTrueCone();
       void buildTrueConeSide(int);
