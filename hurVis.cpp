@@ -123,7 +123,7 @@ Vector4d nextPoint(Vector4d curPoint, double steps){
 
    //cout << "lat: " << curPoint.y << " lon: " << curPoint.x << "\n";
    degLat = (int)(abs(floor(abs(curPoint.y)))-abs(dataGrid->getMinLat()));
-   degLon = (int)(abs(dataGrid->getMaxLon())-abs(floor(abs(curPoint.x))));
+   degLon = (int)(abs(floor(abs(curPoint.x)))-abs(dataGrid->getMinLon()));
    newBear = curPoint.w;
    cDeg = (int)curPoint.w;
    bin = (int)floor( cDeg/dataGrid->getDegPerBin() );
@@ -149,7 +149,7 @@ Vector4d nextPoint(Vector4d curPoint, double steps){
          if(ch1 < speedRatio){ speedHistPre = 1; }
 
          // For new vis... need to remove for old method
-         speedHistPre = 0;
+         //speedHistPre = 0;
          sd = dataGrid->grid[degLat]->at(degLon)->at(bin)->getProbSpeed3Hour(chosen2, min, speedHistPre);
          fSpeed = sd; 
 
@@ -165,7 +165,7 @@ Vector4d nextPoint(Vector4d curPoint, double steps){
          if(ch2 < bearRatio){ bearHistPre = 1; }
 
          // For new vis... need to remove for old method
-         bearHistPre = 0;
+         //bearHistPre = 0;
 
          bd = dataGrid->grid[degLat]->at(degLon)->at(bin)->getProbBear3Hour(chosen, min, bearHistPre);
 

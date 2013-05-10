@@ -142,14 +142,15 @@ pathSegment::pathSegment(Vector4d * p0, Vector4d * p1, double hour, std::vector<
    if(errDist != 0){
      phS1 = ((tempDist-errDist)/tempDist)*sDif;
      phS1 = ((tempDist-errDist) - (curSpeed*timeSeg))/timeSeg;
-     cout << "tempDist: " << tempDist << "    errDist: " << errDist << flush;
+     cout << "     tempDist: " << tempDist << "    errDist: " << errDist << flush;
      cout << "     curSpeed: " << curSpeed << "    timeSeg: " << timeSeg << endl << flush;
      cout << "     num: " << (tempDist-errDist) - (curSpeed*timeSeg) << endl << flush;
-     cout << "PHS1: " << phS1 << endl << flush;
+     cout << "   PHS1: " << phS1 << << flush;
      //phS1 = ((errDist-tempDist)/errDist)*sDif;
      phS2 = ((tempDist+errDist)/tempDist)*sDif;
      phS2 = ((tempDist+errDist) - (curSpeed*timeSeg))/timeSeg;
      //phS2 = ((tempDist+errDist)/errDist)*sDif;
+     cout << "\t PHS2: " << phS1 << endl << flush;
    }
    else{
      phS1 = 0;

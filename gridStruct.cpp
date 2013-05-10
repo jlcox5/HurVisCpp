@@ -120,7 +120,6 @@ void gridStruct::loadFile(string filename, int t){
       else if(peekC == 'D'){
          file >> dec >> input;
          curBin = (int)floor(input / degPerBin);
-         //cout << "newCur bin: " << curBin << "\n";
       }
       else if(peekC == 'P'){
          file >> dec >> tDeg;
@@ -138,23 +137,7 @@ void gridStruct::loadFile(string filename, int t){
          if(abs(tSpeed > 1000)){
             cout << "Bad speed value read\n";
          }
-         if(t == 0){
-            grid[curLat]->at(curLon)->at(curBin)->b.push_back(toIns);
-         }
-         else if(t == 1){
-            //toIns->printData();
-            //cout << "   CurLat: " << curLat << "   CurLon: " << curLon << "   I: " << i << endl;
-            //cout << flush;
-            //cout << "       Inserting at curLat: " << curLat+minLat << " curLon: " << curLon+minLon << " curBin " << curBin << "\n";
-            //cout << "       tTime: " << tTime << endl;
-            /*for(i = 0; i < 6; i++){
-               grid[curLat]->at(curLon)->at(i)->predPathB.push_back(toIns);
-               grid[curLat]->at(curLon)->at(i)->predStartTime.push_back(sTime);
-               grid[curLat]->at(curLon)->at(i)->predFinishTime.push_back(fTime);
-               grid[curLat]->at(curLon)->at(i)->setPrePath(1);
-            }*/
-            //grid[curLat]->at(curLon)->at(curBin)->predPathB.push_back(toIns);
-         }
+         grid[curLat]->at(curLon)->at(curBin)->b.push_back(toIns);
       }
    }
 
@@ -242,12 +225,12 @@ void gridStruct::printGrid(){
 
    //for(i = 0; i < grid.size(); i++){
       i = 7;
-      cout << "Lattitude: " << i+minLat << "\n";
+      cout << "Lattitude: " << i+minLat << "    with i: " << i << "\n";
       cout << "    size: " << grid[i]->size() << "\n";
       lat = grid[i];
       //for(j = 0; j < grid[i]->size(); j++){
-         j = 11;
-         cout << "     Longitude: " << maxLon - j << "\n";
+         j = 10;
+         cout << "     Longitude: " << -1*(minLon + j) << "   with j: " << j << "\n";
          lon = lat->at(j);
          for(k = 0; k < lon->size(); k++){
             bi = lon->at(k);

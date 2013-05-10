@@ -476,27 +476,27 @@ void advisory::drawGenPaths(){
       int testSide = 0;
       pos2 = (*pathIt)->posList.begin() + 1;
       lineWidth = 1.0;
-      //glColor4f((*pathIt)->getInt().x, (*pathIt)->getInt().y,
-      //      (*pathIt)->getInt().z, (*pathIt)->getInt().w);
+      glColor4f((*pathIt)->getInt().x, (*pathIt)->getInt().y,
+            (*pathIt)->getInt().z, (*pathIt)->getInt().w);
       tempTrans = (*pathIt)->getInt().w*sim->getPathOpacity();
       //cout << "Path size: " << (*pathIt)->posList2.size() << endl;
       for (pos1 = (*pathIt)->posList.begin(); pos2 != (*pathIt)->posList.end(); pos1++) {
-         //glColor4f(tempTrans*(*pathIt)->getInt().x, tempTrans*(*pathIt)->getInt().y,
-         //      tempTrans*(*pathIt)->getInt().z, tempTrans);
-         glColor4f(tempTrans*1.0, tempTrans*0.0,
-               tempTrans*0.0, tempTrans);
+         glColor4f(tempTrans*(*pathIt)->getInt().x, tempTrans*(*pathIt)->getInt().y,
+               tempTrans*(*pathIt)->getInt().z, tempTrans);
+         //glColor4f(tempTrans*1.0, tempTrans*0.0,
+         //      tempTrans*0.0, tempTrans);
          //if(side <= med){
          if((*pathIt)->getSide() > 0){
-            //glColor4f(0.2, 0.2, 1.0, tempTrans);
+            glColor4f(0.2, 0.2, 1.0, tempTrans);
             if(pos2+1 == (*pathIt)->posList.end()){
                testSide--;
             }
-            //glColor4f(0.0, 0.0, 1.0, tempTrans);
+            glColor4f(0.0, 0.0, 1.0, tempTrans);
             glColor4f(tempTrans*0.0, tempTrans*0.0,
                tempTrans*1.0, tempTrans);
          }
          else if((*pathIt)->getSide() < 0){
-            //glColor4f(0.2, 0.2, 1.0, tempTrans);
+            glColor4f(0.2, 0.2, 1.0, tempTrans);
             if(pos2+1 == (*pathIt)->posList.end()){
                testSide++;
             }
@@ -519,7 +519,7 @@ void advisory::drawGenPaths(){
          glEnd();
          pos2++;
          //lineWidth = lineWidth + 0.5;
-         //tempTrans = tempTrans - 0.025;
+         tempTrans = tempTrans - 0.025;
       }
 
       testSide < 0 ? onLeft++ : onRight++;

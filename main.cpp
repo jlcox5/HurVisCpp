@@ -97,7 +97,10 @@ int main( int argc, char *argv[] ){
    // Build ui
    userInt = new ui();
 
-   dataGrid = new gridStruct(17, 26, 60, 17, 33, -75, -100, string("resHistCur.txt")); 
+   dataGrid = new gridStruct(17, 26, 60, 17, 33, -75, -100, string("resHistCur.txt"));
+
+   //dataGrid->printGrid();
+   //exit(0);
 
    //sim->buildStatPaths();
 

@@ -52,8 +52,8 @@ simulation::simulation(int htd, double l1, double l2, double l3, double l4, doub
 
 // Draw the generated paths for each advisory
 void simulation::drawGenPaths(){
-   //adv->drawGenPaths();
-   adv->drawGenPathsRainDrop();
+   adv->drawGenPaths();
+   //adv->drawGenPathsRainDrop();
    //adv->drawGenPathsEyePoint();
    adv->drawErrorConeRadius();
 }

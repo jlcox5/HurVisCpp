@@ -285,8 +285,8 @@ void mapWin::drawNext(){
      glColor4f(0.75, 0.75, 0.75, 1.0);
   }
   renderText(butTextPos.x, butTextPos.y, 0, "Next", f, 2000);
-  //glEnable(GL_BLEND); 
-  //glEnable(GL_LINE_SMOOTH);
+  glEnable(GL_BLEND); 
+  glEnable(GL_LINE_SMOOTH);
 }
 
 void mapWin::update(){
@@ -297,7 +297,7 @@ void mapWin::update(){
 
    if(sim->getCurrentAdv() < (int)(sim->advCombList.size()/2)){
          if(step == 0){
-           for(int i = 0; i < 100; i++){
+           for(int i = 0; i < 200; i++){
              totalPaths++;
 
              // Determine whether to do a historical path or points in the cone 
@@ -310,9 +310,6 @@ void mapWin::update(){
              //if(chosen <= 0.32){
                testPath = new path(sim->adv->getLat(), sim->adv->getLon(), sim->adv->getDeg(), sim->adv->getSpeed(), curAdv);
                sim->adv->pathList.push_back(testPath);
-               /*if(interactive == -1){
-                   sim->findAvgLineNew();
-               }*/
              //}
              //else{
                //if(sim->adv->eyePointList.size() < 5){
